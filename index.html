@@ -892,8 +892,8 @@
       </div>
 
       <div class="field-group">
-        <label class="field-label">Username</label>
-        <input class="field-input" type="text" placeholder="wolfschram" id="login-user">
+        <label class="field-label">Email</label>
+        <input class="field-input" type="email" placeholder="wolf@archive-35.com" id="login-user">
       </div>
       <div class="field-group">
         <label class="field-label">Password</label>
@@ -1208,16 +1208,96 @@ cd rock-and-roll-upside-down
 </div>
 
 <script>
-// ==================== STATE ====================
+// ==================== ACCOUNTS (localStorage-backed) ====================
+const ACCOUNTS_KEY = 'rrud_accounts';
+const SESSION_KEY = 'rrud_session';
+
+const DEFAULT_ACCOUNTS = {
+  'wolf@archive-35.com': {
+    email: 'wolf@archive-35.com',
+    password: 'rrud-wolf-2026',
+    username: 'wolfschram',
+    role: 'co_owner',
+    owner: 'wolf',
+    githubUsername: 'wolfschram',
+    githubConnected: true,
+    firstLoginComplete: true,
+    agreementSigned: false,
+    signedAt: null
+  },
+  'dlemmink@reflexdigital.com': {
+    email: 'dlemmink@reflexdigital.com',
+    password: 'rrud-dave-2026',
+    username: '',
+    role: 'co_owner',
+    owner: 'dave',
+    githubUsername: '',
+    githubConnected: false,
+    firstLoginComplete: false,
+    agreementSigned: false,
+    signedAt: null
+  }
+};
+
+function loadAccounts() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(ACCOUNTS_KEY));
+    if (!saved || !saved['wolf@archive-35.com']) {
+      localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(DEFAULT_ACCOUNTS));
+      return { ...DEFAULT_ACCOUNTS };
+    }
+    return saved;
+  } catch { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(DEFAULT_ACCOUNTS)); return { ...DEFAULT_ACCOUNTS }; }
+}
+function saveAccounts(a) { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(a)); }
+function getSession() { try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch { return null; } }
+function setSession(email) { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ email })); }
+function clearSession() { sessionStorage.removeItem(SESSION_KEY); }
+
 const state = {
   tab: 'login',
   githubConnected: false,
   wolfSigned: false,
   daveSigned: false,
-  currentUser: 'wolfschram',
+  currentUser: '',
+  currentEmail: '',
   wolfSignTime: null,
   daveSignTime: null
 };
+
+// ── Auto-login if session exists ──
+(function checkSession() {
+  const sess = getSession();
+  if (sess && sess.email) {
+    const accounts = loadAccounts();
+    const acct = accounts[sess.email];
+    if (acct && acct.firstLoginComplete) {
+      state.currentUser = acct.username;
+      state.currentEmail = acct.email;
+      state.githubConnected = acct.githubConnected;
+      // Restore signatures
+      Object.values(accounts).forEach(a => {
+        if (a.owner === 'wolf' && a.agreementSigned) { state.wolfSigned = true; state.wolfSignTime = a.signedAt; }
+        if (a.owner === 'dave' && a.agreementSigned) { state.daveSigned = true; state.daveSignTime = a.signedAt; }
+      });
+      if (state.wolfSigned && state.daveSigned) {
+        document.addEventListener('DOMContentLoaded', () => {
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('platform-screen').style.display = 'flex';
+          document.getElementById('topbar-username').textContent = acct.username;
+          document.getElementById('legal-wolf-time').textContent = state.wolfSignTime || '—';
+          if (state.daveSigned) {
+            document.getElementById('legal-dave-indicator').classList.add('signed');
+            document.getElementById('legal-dave-time').textContent = state.daveSignTime;
+          }
+          buildGrid();
+        });
+      } else {
+        document.addEventListener('DOMContentLoaded', () => showAgreementScreen());
+      }
+    }
+  }
+})();
 
 // ==================== MODULES DATA ====================
 const modules = [
@@ -1491,43 +1571,97 @@ function setTab(tab) {
 }
 
 function handleLogin() {
-  const user = document.getElementById('login-user').value.trim();
+  const user = document.getElementById('login-user').value.trim().toLowerCase();
   const pass = document.getElementById('login-pass').value;
   const status = document.getElementById('login-status');
 
-  if(!user || !pass) { status.textContent = 'Enter username and password.'; status.className='status-msg error'; return; }
+  if(!user || !pass) { status.textContent = 'Enter email and password.'; status.className='status-msg error'; return; }
+
+  const accounts = loadAccounts();
+  // Find by email or username
+  const acct = accounts[user] || Object.values(accounts).find(a => a.username === user);
+
+  if(!acct) { status.textContent = 'Account not found.'; status.className='status-msg error'; return; }
+  if(acct.password !== pass) { status.textContent = 'Invalid password.'; status.className='status-msg error'; return; }
 
   status.textContent = 'Authenticating...'; status.className='status-msg';
+  state.currentEmail = acct.email;
+  setSession(acct.email);
+
+  // Restore any existing signatures
+  Object.values(accounts).forEach(a => {
+    if (a.owner === 'wolf' && a.agreementSigned) { state.wolfSigned = true; state.wolfSignTime = a.signedAt; }
+    if (a.owner === 'dave' && a.agreementSigned) { state.daveSigned = true; state.daveSignTime = a.signedAt; }
+  });
+
   setTimeout(() => {
-    state.currentUser = user;
-    showAgreementScreen();
-  }, 800);
+    if(!acct.firstLoginComplete) {
+      // First login — force credentials + GitHub setup
+      state.currentUser = acct.username || '';
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('first-login-screen').style.display = 'flex';
+    } else {
+      state.currentUser = acct.username;
+      state.githubConnected = acct.githubConnected;
+      showAgreementScreen();
+    }
+  }, 600);
 }
 
 function mockGithubLogin() {
-  document.getElementById('login-status').textContent = 'GitHub OAuth → redirecting...';
-  document.getElementById('login-status').className='status-msg';
-  setTimeout(() => {
-    state.currentUser = 'wolfschram';
-    state.githubConnected = true;
-    showAgreementScreen();
-  }, 1000);
+  // Use the GitHub button as a shortcut for Wolf
+  const accounts = loadAccounts();
+  const wolf = accounts['wolf@archive-35.com'];
+  if (!wolf) return;
+  document.getElementById('login-status').textContent = 'GitHub OAuth → wolfschram';
+  document.getElementById('login-status').className = 'status-msg';
+  state.currentEmail = wolf.email;
+  state.currentUser = wolf.username;
+  state.githubConnected = true;
+  setSession(wolf.email);
+
+  Object.values(accounts).forEach(a => {
+    if (a.owner === 'wolf' && a.agreementSigned) { state.wolfSigned = true; state.wolfSignTime = a.signedAt; }
+    if (a.owner === 'dave' && a.agreementSigned) { state.daveSigned = true; state.daveSignTime = a.signedAt; }
+  });
+
+  setTimeout(() => showAgreementScreen(), 600);
 }
 
 function handleOTT() {
-  const token = document.getElementById('ott-input').value.trim();
+  // OTT tab — Dave can also use his email here
+  const token = document.getElementById('ott-input').value.trim().toLowerCase();
   const status = document.getElementById('ott-status');
-  if(!token) { status.textContent = 'Enter your one-time token.'; status.className='status-msg error'; return; }
-  status.textContent = 'Validating token...'; status.className='status-msg';
+  if(!token) { status.textContent = 'Enter your email or invite token.'; status.className='status-msg error'; return; }
+
+  const accounts = loadAccounts();
+  const acct = accounts[token] || Object.values(accounts).find(a => !a.firstLoginComplete);
+  if(!acct) { status.textContent = 'Invalid token or email.'; status.className='status-msg error'; return; }
+
+  state.currentEmail = acct.email;
+  setSession(acct.email);
+  status.textContent = 'Token valid. Setting up account...'; status.className='status-msg success';
   setTimeout(() => {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('first-login-screen').style.display = 'flex';
-  }, 800);
+  }, 600);
 }
 
 function mockGithubConnect() {
+  // Dave enters GitHub username via prompt
+  const gh = prompt('Enter your GitHub username:');
+  if (!gh || !gh.trim()) return;
   state.githubConnected = true;
-  document.getElementById('gh-btn-text').textContent = '✓ GitHub Connected (wolfschram)';
+  state.githubUsername = gh.trim();
+  document.getElementById('gh-btn-text').textContent = '\u2713 GitHub Connected (' + gh.trim() + ')';
+
+  // Save to account
+  const accounts = loadAccounts();
+  if (accounts[state.currentEmail]) {
+    accounts[state.currentEmail].githubUsername = gh.trim();
+    accounts[state.currentEmail].githubConnected = true;
+    saveAccounts(accounts);
+  }
 }
 
 function handleFirstLoginSubmit() {
@@ -1539,40 +1673,85 @@ function handleFirstLoginSubmit() {
   if(!newUser) { status.textContent = 'Choose a username.'; status.className='status-msg error'; return; }
   if(newPass.length < 12) { status.textContent = 'Password must be 12+ characters.'; status.className='status-msg error'; return; }
   if(newPass !== confirmPass) { status.textContent = 'Passwords do not match.'; status.className='status-msg error'; return; }
-  if(!state.githubConnected) { status.textContent = 'Connect GitHub first.'; status.className='status-msg error'; return; }
+  if(!state.githubConnected) { status.textContent = 'Connect your GitHub account first.'; status.className='status-msg error'; return; }
+
+  // Save new credentials
+  const accounts = loadAccounts();
+  const acct = accounts[state.currentEmail];
+  if (acct) {
+    acct.username = newUser;
+    acct.password = newPass;
+    acct.firstLoginComplete = true;
+    saveAccounts(accounts);
+  }
 
   state.currentUser = newUser;
-  status.textContent = 'Credentials saved. Loading agreement...'; status.className='status-msg success';
+  status.textContent = 'Account created. Loading agreement...'; status.className='status-msg success';
   setTimeout(() => {
     document.getElementById('first-login-screen').style.display = 'none';
     showAgreementScreen();
-  }, 800);
+  }, 600);
 }
 
 function showAgreementScreen() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('first-login-screen').style.display = 'none';
   document.getElementById('agreement-screen').style.display = 'flex';
+
+  // Restore any previously signed states
+  if (state.wolfSigned) {
+    document.getElementById('wolf-sign-btn').textContent = '\u2713 Signed';
+    document.getElementById('wolf-sign-btn').classList.add('done');
+    document.getElementById('wolf-sign-row').classList.add('signed');
+    document.getElementById('wolf-sign-meta').textContent = `Los Angeles, CA \u00b7 Co-Owner A \u00b7 Signed ${state.wolfSignTime}`;
+  }
+  if (state.daveSigned) {
+    document.getElementById('dave-sign-btn').textContent = '\u2713 Signed';
+    document.getElementById('dave-sign-btn').classList.add('done');
+    document.getElementById('dave-sign-row').classList.add('signed');
+    document.getElementById('dave-sign-meta').textContent = `Cincinnati, OH \u00b7 Co-Owner B \u00b7 Signed ${state.daveSignTime}`;
+  }
+  if (state.wolfSigned && state.daveSigned) {
+    document.getElementById('proceed-btn').classList.add('ready');
+  }
 }
 
 function signAgreement(who) {
+  // Only allow signing your own line
+  const accounts = loadAccounts();
+  const currentAcct = accounts[state.currentEmail];
+  if (currentAcct && currentAcct.owner !== who) {
+    alert('You can only sign your own line.');
+    return;
+  }
+
   const now = new Date();
   const timeStr = now.toISOString().replace('T',' ').slice(0,19) + ' UTC';
 
   if(who === 'wolf') {
     state.wolfSigned = true;
     state.wolfSignTime = timeStr;
-    document.getElementById('wolf-sign-btn').textContent = '✓ Signed';
+    document.getElementById('wolf-sign-btn').textContent = '\u2713 Signed';
     document.getElementById('wolf-sign-btn').classList.add('done');
     document.getElementById('wolf-sign-row').classList.add('signed');
-    document.getElementById('wolf-sign-meta').textContent = `Los Angeles, CA · Co-Owner A · Signed ${timeStr}`;
+    document.getElementById('wolf-sign-meta').textContent = `Los Angeles, CA \u00b7 Co-Owner A \u00b7 Signed ${timeStr}`;
+    if (accounts['wolf@archive-35.com']) {
+      accounts['wolf@archive-35.com'].agreementSigned = true;
+      accounts['wolf@archive-35.com'].signedAt = timeStr;
+      saveAccounts(accounts);
+    }
   } else {
     state.daveSigned = true;
     state.daveSignTime = timeStr;
-    document.getElementById('dave-sign-btn').textContent = '✓ Signed';
+    document.getElementById('dave-sign-btn').textContent = '\u2713 Signed';
     document.getElementById('dave-sign-btn').classList.add('done');
     document.getElementById('dave-sign-row').classList.add('signed');
-    document.getElementById('dave-sign-meta').textContent = `Cincinnati, OH · Co-Owner B · Signed ${timeStr}`;
+    document.getElementById('dave-sign-meta').textContent = `Cincinnati, OH \u00b7 Co-Owner B \u00b7 Signed ${timeStr}`;
+    if (accounts['dlemmink@reflexdigital.com']) {
+      accounts['dlemmink@reflexdigital.com'].agreementSigned = true;
+      accounts['dlemmink@reflexdigital.com'].signedAt = timeStr;
+      saveAccounts(accounts);
+    }
   }
 
   if(state.wolfSigned && state.daveSigned) {
