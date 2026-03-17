@@ -3,624 +3,1608 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RRUD — Rock&Roll UpsideDown</title>
+<title>Rock&Roll UpsideDown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0a;
-    --surface: #141414;
-    --border: #222;
-    --text: #e0e0e0;
-    --dim: #666;
-    --accent: #c9a84c;
-    --red: #d44;
-    --green: #4a4;
+    --black: #080808;
+    --white: #f0ede8;
+    --red: #e8132a;
+    --red-dark: #9e0d1d;
+    --yellow: #f5c800;
+    --grey: #1a1a1a;
+    --grey-mid: #2e2e2e;
+    --grey-light: #555;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+    --font-body: 'Inter', sans-serif;
   }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
-    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
-    background: var(--bg);
-    color: var(--text);
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--font-body);
     min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ==================== NOISE OVERLAY ==================== */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ==================== LOGIN SCREEN ==================== */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+  }
+
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .login-header {
+    text-align: center;
+    margin-bottom: 48px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .title-rr {
+    font-family: var(--font-display);
+    font-size: clamp(52px, 10vw, 100px);
+    color: var(--white);
+    letter-spacing: 0.05em;
+    line-height: 0.9;
+    display: block;
+  }
+
+  .title-ud {
+    font-family: var(--font-display);
+    font-size: clamp(52px, 10vw, 100px);
+    color: var(--red);
+    letter-spacing: 0.05em;
+    line-height: 0.9;
+    display: block;
+    transform: scaleY(-1) rotate(0deg);
+    filter: brightness(1.1);
+  }
+
+  .title-byline {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--grey-light);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-top: 16px;
+  }
+
+  .login-box {
+    width: 100%;
+    max-width: 420px;
+    background: var(--grey);
+    border: 1px solid var(--grey-mid);
+    padding: 40px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .login-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--red);
+  }
+
+  .login-tab-row {
+    display: flex;
+    gap: 0;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--grey-mid);
+  }
+
+  .login-tab {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--grey-light);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+
+  .login-tab.active {
+    color: var(--white);
+    border-bottom-color: var(--red);
+  }
+
+  .login-tab:hover { color: var(--white); }
+
+  .field-group { margin-bottom: 20px; }
+
+  .field-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--grey-light);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .field-input {
+    width: 100%;
+    background: var(--black);
+    border: 1px solid var(--grey-mid);
+    color: var(--white);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field-input:focus { border-color: var(--red); }
+  .field-input::placeholder { color: var(--grey-light); }
+
+  .github-btn {
+    width: 100%;
+    background: var(--grey-mid);
+    border: 1px solid #444;
+    color: var(--white);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 12px;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    transition: background 0.2s;
   }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 40px;
-    max-width: 500px;
+
+  .github-btn:hover { background: #3a3a3a; }
+
+  .github-icon {
+    width: 18px; height: 18px;
+    fill: var(--white);
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .divider-line { flex: 1; height: 1px; background: var(--grey-mid); }
+
+  .divider-text {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--grey-light);
+    letter-spacing: 0.15em;
+  }
+
+  .submit-btn {
     width: 100%;
-    margin: 20px;
+    background: var(--red);
+    border: none;
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 20px;
+    letter-spacing: 0.1em;
+    padding: 14px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
   }
-  .brand {
+
+  .submit-btn:hover { background: var(--red-dark); }
+  .submit-btn:active { transform: scale(0.99); }
+
+  .status-msg {
+    font-family: var(--font-mono);
     font-size: 11px;
+    margin-top: 12px;
+    text-align: center;
+    min-height: 16px;
+    color: var(--yellow);
+    letter-spacing: 0.1em;
+  }
+
+  .status-msg.error { color: var(--red); }
+  .status-msg.success { color: #4ade80; }
+
+  /* ==================== FIRST LOGIN FLOW ==================== */
+  #first-login-screen {
+    min-height: 100vh;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .flow-step {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--red);
     text-transform: uppercase;
-    letter-spacing: 4px;
-    color: var(--dim);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .flow-title {
+    font-family: var(--font-display);
+    font-size: 36px;
+    letter-spacing: 0.08em;
+    margin-bottom: 32px;
+    text-align: center;
+  }
+
+  /* ==================== CO-OWNER AGREEMENT ==================== */
+  #agreement-screen {
+    min-height: 100vh;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 60px 20px;
+  }
+
+  .agreement-box {
+    width: 100%;
+    max-width: 700px;
+  }
+
+  .agreement-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--yellow);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .agreement-title {
+    font-family: var(--font-display);
+    font-size: 52px;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    margin-bottom: 32px;
+    color: var(--white);
+  }
+
+  .agreement-scroll {
+    background: var(--grey);
+    border: 1px solid var(--grey-mid);
+    padding: 28px 32px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 28px;
+    font-size: 12px;
+    line-height: 1.8;
+    color: #aaa;
+    scrollbar-width: thin;
+    scrollbar-color: var(--red) var(--grey-mid);
+  }
+
+  .agreement-scroll h4 {
+    color: var(--white);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin: 16px 0 8px;
+  }
+
+  .agreement-scroll p { margin-bottom: 10px; }
+
+  .sign-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    background: var(--grey);
+    border: 1px solid var(--grey-mid);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .sign-row::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--grey-mid);
+  }
+
+  .sign-row.signed::before { background: #4ade80; }
+
+  .sign-name {
+    font-family: var(--font-display);
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    flex: 1;
+  }
+
+  .sign-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--grey-light);
+    letter-spacing: 0.1em;
+  }
+
+  .sign-btn {
+    background: none;
+    border: 1px solid var(--red);
+    color: var(--red);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .sign-btn:hover { background: var(--red); color: var(--white); }
+  .sign-btn.done { border-color: #4ade80; color: #4ade80; cursor: default; }
+
+  .sign-proceed-btn {
+    width: 100%;
+    background: var(--red);
+    border: none;
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 22px;
+    letter-spacing: 0.1em;
+    padding: 16px;
+    cursor: pointer;
+    opacity: 0.3;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .sign-proceed-btn.ready { opacity: 1; pointer-events: all; }
+
+  /* ==================== MAIN PLATFORM ==================== */
+  #platform-screen {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    height: 56px;
+    background: var(--black);
+    border-bottom: 1px solid var(--grey-mid);
+    gap: 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-logo {
+    font-family: var(--font-display);
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    color: var(--white);
+    flex-shrink: 0;
+  }
+
+  .topbar-logo span { color: var(--red); }
+
+  .topbar-nav {
+    display: flex;
+    gap: 0;
+    flex: 1;
+    overflow-x: auto;
+  }
+
+  .nav-item {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0 16px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--grey-light);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .nav-item:hover { color: var(--white); }
+  .nav-item.active { color: var(--white); border-bottom-color: var(--red); }
+
+  .topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .user-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--grey-light);
+    letter-spacing: 0.1em;
+  }
+
+  .user-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ==================== ARCHITECTURE MAP ==================== */
+  .platform-content {
+    flex: 1;
+    padding: 32px;
+    overflow: auto;
+  }
+
+  .arch-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .arch-title {
+    font-family: var(--font-display);
+    font-size: 40px;
+    letter-spacing: 0.05em;
+    line-height: 1;
+  }
+
+  .arch-title span { color: var(--red); }
+
+  .arch-subtitle {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--grey-light);
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  .branch-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    border: 1px solid;
+    text-transform: uppercase;
+  }
+
+  .badge-wolf { border-color: #f5c800; color: #f5c800; }
+  .badge-dave { border-color: #60a5fa; color: #60a5fa; }
+  .badge-main { border-color: #4ade80; color: #4ade80; }
+
+  /* ==================== MODULE GRID ==================== */
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2px;
+  }
+
+  .module-card {
+    background: var(--grey);
+    border: 1px solid var(--grey-mid);
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .module-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--module-color, var(--red));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .module-card:hover::after { transform: scaleX(1); }
+  .module-card:hover { background: #222; }
+
+  .module-card.expanded {
+    grid-column: 1 / -1;
+    cursor: default;
+  }
+
+  .module-card.expanded::after { transform: scaleX(1); }
+
+  .mod-number {
+    font-family: var(--font-display);
+    font-size: 48px;
+    color: var(--grey-mid);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .mod-name {
+    font-family: var(--font-display);
+    font-size: 24px;
+    letter-spacing: 0.05em;
+    line-height: 1.1;
     margin-bottom: 8px;
   }
-  h2 {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 20px;
-    color: var(--text);
-  }
-  label {
-    display: block;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--dim);
-    margin: 16px 0 6px;
-  }
-  input, select {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid #333;
-    color: var(--text);
-    padding: 12px 16px;
-    font-family: inherit;
-    font-size: 14px;
-  }
-  input:focus, select:focus { outline: none; border-color: var(--accent); }
-  .btn {
-    width: 100%;
-    background: var(--text);
-    color: var(--bg);
-    border: none;
-    padding: 14px;
-    font-family: inherit;
+
+  .mod-desc {
+    font-family: var(--font-body);
     font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    cursor: pointer;
-    margin-top: 24px;
+    color: #888;
+    line-height: 1.6;
+    margin-bottom: 16px;
   }
-  .btn:hover { opacity: 0.9; }
-  .btn-github {
-    background: #24292e;
-    color: #fff;
-    border: 1px solid #444;
-  }
-  .btn-sign {
-    background: var(--accent);
-    color: var(--bg);
-  }
-  .btn-sign.signed {
-    background: var(--green);
-  }
-  .error { color: var(--red); font-size: 12px; margin-top: 8px; }
-  .sub { font-size: 11px; color: var(--dim); margin-top: 8px; line-height: 1.6; }
-  .steps {
+
+  .mod-tags {
     display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .mod-tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    background: var(--black);
+    color: var(--grey-light);
+    border: 1px solid var(--grey-mid);
+  }
+
+  /* ==================== EXPANDED MODULE ==================== */
+  .expanded-content {
+    display: none;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--grey-mid);
+    animation: fadeIn 0.3s ease;
+  }
+
+  .module-card.expanded .expanded-content { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .dep-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 12px;
     margin-bottom: 24px;
   }
-  .step-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: #333;
-  }
-  .dot.active { background: var(--accent); }
-  .dot.done { background: var(--green); }
-  .agreement-box {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    padding: 20px;
-    font-size: 12px;
-    line-height: 1.8;
-    max-height: 280px;
-    overflow-y: auto;
-    margin-top: 16px;
-    color: #999;
-  }
-  .connected {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--bg);
-    border: 1px solid #333;
-    padding: 12px 16px;
-    margin-top: 16px;
-    font-size: 14px;
-  }
-  .connected .check { color: var(--green); font-size: 16px; }
-  .done-list { font-size: 13px; line-height: 2.2; color: #999; }
-  .done-list .check { color: var(--green); margin-right: 6px; }
-  .done-list strong { color: var(--text); }
-  .next-box {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    padding: 16px;
-    margin-top: 24px;
-    font-size: 12px;
-    line-height: 1.8;
-    color: var(--dim);
-  }
-  .next-box strong { color: var(--text); }
-  .hidden { display: none; }
 
-  /* workspace view */
-  .workspace { display: none; }
-  .workspace-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 20px;
+  .dep-card {
+    background: var(--black);
+    border: 1px solid var(--grey-mid);
+    padding: 14px 16px;
   }
-  .workspace-header .user-info { font-size: 11px; color: var(--dim); }
-  .workspace .card { max-width: 720px; }
-  .grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+
+  .dep-num {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--red);
+    letter-spacing: 0.2em;
+    margin-bottom: 4px;
+  }
+
+  .dep-name {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--white);
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .dep-pkg {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--yellow);
+    margin-bottom: 4px;
+  }
+
+  .dep-desc {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: #777;
+    line-height: 1.5;
+  }
+
+  .schema-block {
+    background: var(--black);
+    border: 1px solid var(--grey-mid);
+    border-left: 3px solid var(--module-color, var(--red));
+    padding: 16px 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #aaa;
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre;
     margin-bottom: 16px;
   }
-  .stat-card {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    padding: 16px;
-  }
-  .stat-card .stat-label {
+
+  .collapse-btn {
+    font-family: var(--font-mono);
     font-size: 10px;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--dim);
-    margin-bottom: 8px;
-  }
-  .stat-card .stat-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--accent);
-  }
-  .stat-card .stat-sub { font-size: 11px; color: var(--dim); margin-top: 4px; }
-  .section-title {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--dim);
-    margin: 16px 0 8px;
-  }
-  .phase-list { list-style: none; font-size: 13px; line-height: 2; }
-  .phase-list .done-phase { color: var(--green); }
-  .phase-list .current-phase { color: var(--accent); font-weight: 700; }
-  .phase-list .future-phase { color: #444; }
-  .logout-btn {
     background: none;
-    border: 1px solid #333;
-    color: var(--dim);
-    padding: 6px 12px;
-    font-family: inherit;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    border: 1px solid var(--grey-mid);
+    color: var(--grey-light);
+    padding: 8px 16px;
     cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
   }
-  @media (max-width: 540px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .collapse-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* ==================== SANDBOXES ==================== */
+  .sandbox-section {
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--grey-mid);
+  }
+
+  .sandbox-header {
+    font-family: var(--font-display);
+    font-size: 32px;
+    letter-spacing: 0.05em;
+    margin-bottom: 20px;
+  }
+
+  .sandbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .sandbox-card {
+    background: var(--grey);
+    border: 1px solid var(--grey-mid);
+    padding: 28px;
+    position: relative;
+  }
+
+  .sandbox-card.wolf { border-top: 2px solid var(--yellow); }
+  .sandbox-card.dave { border-top: 2px solid #60a5fa; }
+
+  .sandbox-owner {
+    font-family: var(--font-display);
+    font-size: 28px;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .sandbox-branch {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--grey-light);
+    letter-spacing: 0.15em;
+    margin-bottom: 16px;
+  }
+
+  .sandbox-rule {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: #666;
+    line-height: 1.8;
+    letter-spacing: 0.05em;
+  }
+
+  .sandbox-rule span { color: var(--white); }
+
+  /* ==================== LEGAL TAB ==================== */
+  .legal-content {
+    max-width: 720px;
+  }
+
+  .legal-block {
+    background: var(--grey);
+    border: 1px solid var(--grey-mid);
+    padding: 32px;
+    margin-bottom: 2px;
+  }
+
+  .legal-clause-num {
+    font-family: var(--font-display);
+    font-size: 48px;
+    color: var(--grey-mid);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .legal-clause-title {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+
+  .legal-clause-text {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: #999;
+    line-height: 1.8;
+  }
+
+  .signature-status {
+    background: var(--grey);
+    border: 1px solid var(--grey-mid);
+    padding: 24px 28px;
+    margin-top: 24px;
+  }
+
+  .sig-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--grey-light);
+    margin-bottom: 16px;
+  }
+
+  .sig-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--grey-mid);
+  }
+
+  .sig-row:last-child { border-bottom: none; }
+
+  .sig-indicator {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .sig-indicator.signed { background: #4ade80; }
+  .sig-indicator.pending { background: var(--grey-mid); border: 1px solid #555; }
+
+  .sig-name {
+    font-family: var(--font-display);
+    font-size: 18px;
+    letter-spacing: 0.05em;
+    flex: 1;
+  }
+
+  .sig-time {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--grey-light);
+    letter-spacing: 0.1em;
+  }
+
+  /* ==================== RESPONSIVE ==================== */
+  @media (max-width: 640px) {
+    .sandbox-grid { grid-template-columns: 1fr; }
+    .topbar { padding: 0 16px; }
+    .platform-content { padding: 16px; }
+    .topbar-nav { gap: 0; }
+    .nav-item { padding: 0 10px; font-size: 9px; }
+  }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════ -->
-<!-- ONBOARDING FLOW                                        -->
-<!-- ═══════════════════════════════════════════════════════ -->
-<div id="onboarding" class="card">
-  <div class="brand">Rock&Roll UpsideDown</div>
+<div class="scanlines"></div>
 
-  <!-- Step indicators (hidden on login) -->
-  <div id="step-indicators" class="steps hidden">
-    <div class="step-item"><div class="dot" id="dot-1"></div><span id="lbl-1">Credentials</span></div>
-    <div class="step-item"><div class="dot" id="dot-2"></div><span id="lbl-2">GitHub</span></div>
-    <div class="step-item"><div class="dot" id="dot-3"></div><span id="lbl-3">Agreement</span></div>
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div id="login-screen">
+  <div class="login-header">
+    <span class="title-rr">Rock&Roll</span>
+    <span class="title-ud">UpsideDown</span>
+    <div class="title-byline">Co-Owner Platform &bull; Wolf Schram &bull; Dave [Cincinnati]</div>
   </div>
 
-  <!-- S0: LOGIN -->
-  <div id="s-login">
-    <h2>Sign In</h2>
-    <label>Email</label>
-    <input type="email" id="login-email" placeholder="you@example.com">
-    <label>Password</label>
-    <input type="password" id="login-pass" placeholder="password">
-    <div class="error hidden" id="login-error"></div>
-    <button class="btn" id="login-btn">Sign In</button>
-    <p class="sub" style="margin-top:16px;text-align:center">
-      First time? Use the email from your invite.
-    </p>
-  </div>
-
-  <!-- S1: SET CREDENTIALS -->
-  <div id="s-creds" class="hidden">
-    <h2>Set Your Credentials</h2>
-    <p class="sub">First login — choose your platform username and password.</p>
-    <label>Username</label>
-    <input type="text" id="cred-user" placeholder="dave">
-    <label>New Password</label>
-    <input type="password" id="cred-pass" placeholder="minimum 12 characters">
-    <div class="error hidden" id="cred-error"></div>
-    <button class="btn" id="cred-btn">Continue</button>
-  </div>
-
-  <!-- S2: CONNECT GITHUB -->
-  <div id="s-github" class="hidden">
-    <h2>Connect GitHub</h2>
-    <p class="sub">
-      Link your GitHub account. This provisions your access to the
-      repository, sets up CODEOWNERS, and creates your sandbox branch.
-    </p>
-    <div id="gh-form">
-      <label>GitHub Username</label>
-      <input type="text" id="gh-user" placeholder="your-github-username">
-      <p class="sub">
-        We will send you a collaborator invite and configure CODEOWNERS
-        with your account.
-      </p>
-      <button class="btn btn-github" id="gh-btn">Connect GitHub</button>
-      <p class="sub">
-        This also sets up:<br>
-        — CODEOWNERS (both co-owners required for main)<br>
-        — Branch protection rules<br>
-        — Your sandbox branch: sandbox/dave
-      </p>
+  <div class="login-box">
+    <div class="login-tab-row">
+      <button class="login-tab active" onclick="setTab('login')">Sign In</button>
+      <button class="login-tab" onclick="setTab('first')">First Login</button>
     </div>
-    <div id="gh-done" class="hidden">
-      <div class="connected">
-        <span class="check">&#10003;</span>
-        <span>Connected as <strong id="gh-display"></strong></span>
+
+    <div id="tab-login">
+      <button class="github-btn" onclick="mockGithubLogin()">
+        <svg class="github-icon" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        Continue with GitHub
+      </button>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">or</span>
+        <div class="divider-line"></div>
       </div>
-      <p class="sub" style="color:var(--green)">
-        GitHub account linked. Repository access will be provisioned
-        after you sign the co-ownership agreement.
-      </p>
-      <button class="btn" id="gh-next-btn">Continue to Agreement</button>
-    </div>
-    <div class="error hidden" id="gh-error"></div>
-  </div>
 
-  <!-- S3: CO-OWNERSHIP AGREEMENT -->
-  <div id="s-agree" class="hidden">
-    <h2>Co-Ownership Agreement</h2>
-    <p class="sub">
-      Read the full agreement. Both co-owners must sign before either
-      gets full platform access.
-    </p>
-    <div class="agreement-box">
-      <strong>ROCK&ROLL UPSIDE DOWN — CO-OWNERSHIP AGREEMENT</strong><br><br>
-      <strong>Version 1.0 — March 2026</strong><br><br>
-      This agreement is between Wolf Schram ("Co-Owner A") and the
-      undersigned ("Co-Owner B"), collectively "the Co-Owners."<br><br>
-      <strong>1. Ownership.</strong> All intellectual property created
-      within the rock-and-roll-upside-down repository is owned 50/50 by
-      both Co-Owners. This includes code, architecture, designs,
-      documentation, and any derivative works.<br><br>
-      <strong>2. Decision Making.</strong> Major decisions — architecture
-      changes, external partnerships, fundraising, spending — require
-      agreement from both Co-Owners.<br><br>
-      <strong>3. Revenue.</strong> All revenue generated by the platform
-      shall be split 50/50 after agreed operating costs.<br><br>
-      <strong>4. Contributions.</strong> All contributions to develop
-      or main become jointly owned automatically. Sandbox work remains
-      personal until merged.<br><br>
-      <strong>5. Protected Branches.</strong> main requires approval from
-      both Co-Owners. Enforced via GitHub CODEOWNERS.<br><br>
-      <strong>6. Dissolution.</strong> Requires mutual agreement or
-      California arbitration.<br><br>
-      <strong>7. Third Parties.</strong> External partnerships, investors,
-      or contractors require both signatures.<br><br>
-      By clicking "I agree as co-owner" below, you digitally sign this
-      agreement. Your signature is timestamped and IP-logged.
+      <div class="field-group">
+        <label class="field-label">Username</label>
+        <input class="field-input" type="text" placeholder="wolfschram" id="login-user">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <input class="field-input" type="password" placeholder="••••••••••••" id="login-pass">
+      </div>
+      <button class="submit-btn" onclick="handleLogin()">Enter</button>
+      <div class="status-msg" id="login-status"></div>
     </div>
-    <button class="btn btn-sign" id="sign-btn">I Agree as Co-Owner</button>
-  </div>
 
-  <!-- S4: COMPLETE -->
-  <div id="s-done" class="hidden">
-    <h2>You're In.</h2>
-    <div class="done-list">
-      <div><span class="check">&#10003;</span> Username: <strong id="done-user"></strong></div>
-      <div><span class="check">&#10003;</span> GitHub: <strong id="done-gh"></strong></div>
-      <div><span class="check">&#10003;</span> Agreement: <strong style="color:var(--green)">Signed</strong></div>
+    <div id="tab-first" style="display:none">
+      <div style="font-family:var(--font-mono);font-size:11px;color:#888;line-height:1.8;margin-bottom:20px;letter-spacing:0.05em;">
+        You received a one-time invite link. Enter your token below to set up your account.
+      </div>
+      <div class="field-group">
+        <label class="field-label">One-Time Token</label>
+        <input class="field-input" type="text" placeholder="rrud-xxxxxxxx-xxxx-xxxx" id="ott-input">
+      </div>
+      <button class="submit-btn" onclick="handleOTT()">Activate Account</button>
+      <div class="status-msg" id="ott-status"></div>
     </div>
-    <div class="next-box">
-      <strong>What happens next:</strong><br>
-      — Repository access provisioned for <span id="done-gh2"></span><br>
-      — CODEOWNERS updated with your GitHub account<br>
-      — Your sandbox branch created<br>
-      — Branch protection rules applied<br><br>
-      Welcome to Rock&Roll UpsideDown.
-    </div>
-    <button class="btn" id="enter-btn" style="margin-top:24px">Enter Workspace</button>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════ -->
-<!-- WORKSPACE (after login)                                -->
-<!-- ═══════════════════════════════════════════════════════ -->
-<div id="workspace" class="workspace">
-  <div class="card">
-    <div class="workspace-header">
+<!-- ==================== FIRST LOGIN: SET CREDENTIALS ==================== -->
+<div id="first-login-screen">
+  <div class="flow-step">Step 1 of 3 — Set Your Credentials</div>
+  <div class="flow-title">Make It Yours</div>
+  <div class="login-box">
+    <div class="field-group">
+      <label class="field-label">Choose Username</label>
+      <input class="field-input" type="text" placeholder="wolfschram" id="new-username">
+    </div>
+    <div class="field-group">
+      <label class="field-label">New Password</label>
+      <input class="field-input" type="password" placeholder="min 12 characters" id="new-pass">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Confirm Password</label>
+      <input class="field-input" type="password" placeholder="repeat password" id="confirm-pass">
+    </div>
+    <div style="margin-bottom:20px;padding:16px;background:var(--black);border:1px solid var(--grey-mid);">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--grey-light);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px;">GitHub Integration</div>
+      <button class="github-btn" style="margin-bottom:0" onclick="mockGithubConnect()">
+        <svg class="github-icon" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        <span id="gh-btn-text">Connect GitHub Account</span>
+      </button>
+    </div>
+    <button class="submit-btn" onclick="handleFirstLoginSubmit()">Next — Review Agreement</button>
+    <div class="status-msg" id="first-login-status"></div>
+  </div>
+</div>
+
+<!-- ==================== CO-OWNER AGREEMENT ==================== -->
+<div id="agreement-screen">
+  <div class="agreement-box">
+    <div class="agreement-tag">Co-Ownership Agreement v1.0 — Required</div>
+    <div class="agreement-title">Before We Build</div>
+
+    <div class="agreement-scroll" id="agreement-text">
+      <h4>Rock&Roll UpsideDown — Co-Ownership Agreement</h4>
+      <p>This agreement establishes the terms under which Wolf Schram ("Co-Owner A") and Dave [Cincinnati] ("Co-Owner B") jointly own and operate the Rock&Roll UpsideDown platform and all intellectual property created within the repository rock-and-roll-upside-down.</p>
+
+      <h4>1. Joint Ownership</h4>
+      <p>All intellectual property, code, concepts, designs, business methodologies, and innovations created within this repository or arising from collaboration on this project are jointly owned 50/50 by both co-owners, regardless of who originated the idea or wrote the code.</p>
+
+      <h4>2. Decision Making</h4>
+      <p>Major architectural decisions, external partnerships, licensing agreements, fundraising activities, and any action that materially affects the platform require the written consent of both co-owners. Day-to-day development decisions within sandbox environments require no approval.</p>
+
+      <h4>3. Revenue & Expenses</h4>
+      <p>All revenue generated by the platform shall be split 50/50 after agreed operating costs. Both co-owners must approve any expenditure exceeding $500 USD. Operating costs shall be documented and agreed upon in writing before being incurred.</p>
+
+      <h4>4. Contributions</h4>
+      <p>Git commit history serves as the authoritative record of individual contributions. Each co-owner is expected to contribute in good faith. No minimum contribution requirement is imposed during the development phase.</p>
+
+      <h4>5. Dissolution</h4>
+      <p>This partnership may only be dissolved by mutual written agreement of both co-owners, or through binding arbitration under California law if mutual agreement cannot be reached. Upon dissolution, IP rights and any platform value shall be divided 50/50 or as otherwise agreed in writing.</p>
+
+      <h4>6. Confidentiality</h4>
+      <p>Both co-owners agree to maintain strict confidentiality regarding platform architecture, business strategy, and any non-public information shared in the course of this collaboration, both during and for a period of 3 years following any dissolution.</p>
+
+      <h4>7. Sandbox Environments</h4>
+      <p>Each co-owner maintains an individual sandbox environment (sandbox/wolf, sandbox/dave) for experimental development. Work in sandboxes is the property of the individual until merged into the develop or main branch, at which point it becomes jointly owned.</p>
+
+      <h4>8. Governing Law</h4>
+      <p>This agreement shall be governed by the laws of the State of California, USA, without regard to conflict of law principles.</p>
+
+      <h4>Signing</h4>
+      <p>Both co-owners must click "I agree and sign as co-owner" below. Each signature is recorded with timestamp, IP address, and SHA256 hash of this agreement version. This constitutes a binding electronic signature under applicable law.</p>
+      <p>Agreement SHA256: rrud-agreement-v1.0-2026-03-16</p>
+    </div>
+
+    <div class="sign-row" id="wolf-sign-row">
       <div>
-        <div class="brand">Rock&Roll UpsideDown</div>
-        <div style="font-size:14px;font-weight:700;margin-top:4px">Workspace</div>
+        <div class="sign-name">Wolf Schram</div>
+        <div class="sign-meta" id="wolf-sign-meta">Los Angeles, CA &bull; Co-Owner A &bull; Pending signature</div>
       </div>
-      <div style="text-align:right">
-        <div class="user-info" id="ws-user"></div>
-        <button class="logout-btn" id="logout-btn">Sign Out</button>
-      </div>
+      <button class="sign-btn" id="wolf-sign-btn" onclick="signAgreement('wolf')">Sign as Co-Owner A</button>
     </div>
 
-    <div class="grid-2">
-      <div class="stat-card">
-        <div class="stat-label">Co-Owners</div>
-        <div class="stat-value" id="ws-owners">0</div>
-        <div class="stat-sub" id="ws-owners-sub">of 2 signed</div>
+    <div class="sign-row" id="dave-sign-row">
+      <div>
+        <div class="sign-name">Dave</div>
+        <div class="sign-meta" id="dave-sign-meta">Cincinnati, OH &bull; Co-Owner B &bull; Pending signature</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Phase</div>
-        <div class="stat-value">1</div>
-        <div class="stat-sub">Foundation</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Repo</div>
-        <div class="stat-value" style="font-size:14px">
-          <a href="https://github.com/wolfschram/rock-and-roll-upside-down" target="_blank" style="color:var(--accent);text-decoration:none">GitHub &#8599;</a>
+      <button class="sign-btn" id="dave-sign-btn" onclick="signAgreement('dave')">Sign as Co-Owner B</button>
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:10px;color:#555;letter-spacing:0.1em;margin:12px 0 16px;line-height:1.7;">
+      Both parties must sign before platform access is granted.<br>
+      Your signature, timestamp, and IP are recorded immutably.
+    </div>
+
+    <button class="sign-proceed-btn" id="proceed-btn" onclick="enterPlatform()">Enter Platform →</button>
+  </div>
+</div>
+
+<!-- ==================== MAIN PLATFORM ==================== -->
+<div id="platform-screen">
+  <div class="topbar">
+    <div class="topbar-logo">R&amp;R<span>↕</span>UD</div>
+    <div class="topbar-nav">
+      <button class="nav-item active" onclick="showSection('architecture')">Architecture</button>
+      <button class="nav-item" onclick="showSection('sandboxes')">Sandboxes</button>
+      <button class="nav-item" onclick="showSection('legal')">Legal</button>
+      <button class="nav-item" onclick="showSection('github')">GitHub</button>
+    </div>
+    <div class="topbar-user">
+      <div class="user-dot"></div>
+      <div class="user-tag" id="topbar-username">wolfschram</div>
+    </div>
+  </div>
+
+  <div class="platform-content">
+
+    <!-- ARCHITECTURE SECTION -->
+    <div id="section-architecture">
+      <div class="arch-header">
+        <div>
+          <div class="arch-title">System <span>Architecture</span></div>
+          <div class="arch-subtitle">Rock&Roll UpsideDown &bull; v1.0 &bull; Click any module to expand</div>
         </div>
-        <div class="stat-sub">wolfschram/rock-and-roll-upside-down</div>
+        <div class="branch-badges">
+          <span class="badge badge-main">main ✓</span>
+          <span class="badge badge-wolf">sandbox/wolf</span>
+          <span class="badge badge-dave">sandbox/dave</span>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Services</div>
-        <div class="stat-value">8</div>
-        <div class="stat-sub">0 deployed</div>
+
+      <div class="module-grid" id="module-grid"></div>
+    </div>
+
+    <!-- SANDBOXES SECTION -->
+    <div id="section-sandboxes" style="display:none">
+      <div class="arch-header">
+        <div>
+          <div class="arch-title">Dev <span>Sandboxes</span></div>
+          <div class="arch-subtitle">Your private space. Zero enforcement. Never touches main.</div>
+        </div>
+      </div>
+      <div class="sandbox-grid">
+        <div class="sandbox-card wolf">
+          <div class="sandbox-owner">Wolf Schram</div>
+          <div class="sandbox-branch">branch: sandbox/wolf</div>
+          <div class="sandbox-rule">
+            <span>Rules:</span><br>
+            No CI gates<br>
+            No PR required<br>
+            No approval needed<br>
+            Push freely<br><br>
+            <span>To merge into develop:</span><br>
+            Open PR → develop<br>
+            Dave reviews (optional)<br>
+            Becomes jointly owned on merge
+          </div>
+        </div>
+        <div class="sandbox-card dave">
+          <div class="sandbox-owner">Dave</div>
+          <div class="sandbox-branch">branch: sandbox/dave</div>
+          <div class="sandbox-rule">
+            <span>Rules:</span><br>
+            No CI gates<br>
+            No PR required<br>
+            No approval needed<br>
+            Push freely<br><br>
+            <span>To merge into develop:</span><br>
+            Open PR → develop<br>
+            Wolf reviews (optional)<br>
+            Becomes jointly owned on merge
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:24px;background:var(--grey);border:1px solid var(--grey-mid);padding:24px;font-family:var(--font-mono);font-size:11px;color:#666;line-height:1.9;letter-spacing:0.05em;">
+        <span style="color:var(--white);">Branch model:</span> main → staging → develop → feature/* or sandbox/*<br>
+        <span style="color:var(--white);">Main protection:</span> Requires PR + both co-owner approvals<br>
+        <span style="color:var(--white);">No hidden areas:</span> Both co-owners have read access to all branches at all times<br>
+        <span style="color:var(--white);">Destroy-safe:</span> Sandboxes are isolated — you cannot break main from a sandbox
       </div>
     </div>
 
-    <div class="section-title">Build Phases</div>
-    <ul class="phase-list">
-      <li class="current-phase">&#9654; Phase 1 — Foundation (shared packages + auth portal)</li>
-      <li class="future-phase">&#9634; Phase 2 — Core Platform (band accounts, tours, shows)</li>
-      <li class="future-phase">&#9634; Phase 3 — Live Production (edge ingest, AI metadata)</li>
-      <li class="future-phase">&#9634; Phase 4 — Distribution (licensing, streaming, e-commerce)</li>
-      <li class="future-phase">&#9634; Phase 5 — Architecture Viz (mind map site)</li>
-    </ul>
+    <!-- LEGAL SECTION -->
+    <div id="section-legal" style="display:none">
+      <div class="arch-header">
+        <div>
+          <div class="arch-title">Legal <span>Agreement</span></div>
+          <div class="arch-subtitle">Co-ownership terms &bull; Both parties signed</div>
+        </div>
+      </div>
+      <div class="legal-content">
+        <div class="legal-block">
+          <div class="legal-clause-num">01</div>
+          <div class="legal-clause-title">Joint Ownership</div>
+          <div class="legal-clause-text">All IP, code, concepts, designs, and innovations created within this repository are jointly owned 50/50 by Wolf Schram and Dave, regardless of who originated the idea or wrote the code.</div>
+        </div>
+        <div class="legal-block">
+          <div class="legal-clause-num">02</div>
+          <div class="legal-clause-title">Decision Making</div>
+          <div class="legal-clause-text">Major decisions — architecture, partnerships, fundraising, licensing — require written consent of both co-owners. Sandbox development requires no approval.</div>
+        </div>
+        <div class="legal-block">
+          <div class="legal-clause-num">03</div>
+          <div class="legal-clause-title">Revenue Split</div>
+          <div class="legal-clause-text">All revenue split 50/50 after agreed operating costs. Expenditures over $500 USD require joint approval.</div>
+        </div>
+        <div class="legal-block">
+          <div class="legal-clause-num">04</div>
+          <div class="legal-clause-title">Sandboxes</div>
+          <div class="legal-clause-text">Work in sandbox/wolf and sandbox/dave belongs to the individual until merged to develop, at which point it becomes jointly owned under this agreement.</div>
+        </div>
+        <div class="legal-block">
+          <div class="legal-clause-num">05</div>
+          <div class="legal-clause-title">Dissolution</div>
+          <div class="legal-clause-text">Dissolution requires mutual written agreement or California binding arbitration. IP and value split 50/50.</div>
+        </div>
 
-    <div class="section-title">Co-Owner Status</div>
-    <div id="ws-signatures" style="font-size:12px;line-height:2;color:var(--dim)"></div>
-
-    <div class="section-title">Quick Links</div>
-    <div style="font-size:12px;line-height:2">
-      <a href="https://github.com/wolfschram/rock-and-roll-upside-down/blob/main/docs/ARCHITECTURE.md" target="_blank" style="color:var(--accent)">ARCHITECTURE.md</a><br>
-      <a href="https://github.com/wolfschram/rock-and-roll-upside-down/blob/main/docs/VISION.md" target="_blank" style="color:var(--accent)">VISION.md</a><br>
-      <a href="https://github.com/wolfschram/rock-and-roll-upside-down/blob/main/LEGAL_AGREEMENT.md" target="_blank" style="color:var(--accent)">Co-Ownership Agreement</a><br>
-      <a href="https://github.com/wolfschram/rock-and-roll-upside-down/blob/main/docs/DAVE_ONBOARDING.md" target="_blank" style="color:var(--accent)">Dave's Onboarding Guide</a>
+        <div class="signature-status">
+          <div class="sig-title">Signature Status</div>
+          <div class="sig-row">
+            <div class="sig-indicator signed"></div>
+            <div class="sig-name">Wolf Schram</div>
+            <div class="sig-time" id="legal-wolf-time">—</div>
+          </div>
+          <div class="sig-row">
+            <div class="sig-indicator" id="legal-dave-indicator"></div>
+            <div class="sig-name">Dave</div>
+            <div class="sig-time" id="legal-dave-time">Pending</div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- GITHUB SECTION -->
+    <div id="section-github" style="display:none">
+      <div class="arch-header">
+        <div>
+          <div class="arch-title">GitHub <span>Setup</span></div>
+          <div class="arch-subtitle">Repository structure &bull; Branch model &bull; Claude Code handover</div>
+        </div>
+      </div>
+      <div style="display:grid;gap:2px;">
+        <div style="background:var(--grey);border:1px solid var(--grey-mid);padding:24px;">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--grey-light);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:12px;">Repo</div>
+          <div style="font-family:var(--font-display);font-size:24px;letter-spacing:0.05em;margin-bottom:8px;">github.com/wolfschram/rock-and-roll-upside-down</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:#666;line-height:1.8;">Mono-repo &bull; Turborepo &bull; pnpm workspaces &bull; 8 apps &bull; 5 shared packages</div>
+        </div>
+        <div style="background:var(--grey);border:1px solid var(--grey-mid);padding:24px;">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--grey-light);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:12px;">Claude Code — First Command</div>
+          <div class="schema-block" style="margin:0;">git clone https://github.com/wolfschram/rock-and-roll-upside-down.git
+cd rock-and-roll-upside-down
+
+# Claude Code: read ARCHITECTURE.md first
+# Then begin Phase 1:
+# 1. pnpm create turbo (scaffold)
+# 2. packages/shared-types
+# 3. packages/shared-auth
+# 4. packages/shared-db + Prisma
+# 5. apps/portal (auth + GitHub OAuth + co-owner signing)</div>
+        </div>
+        <div style="background:var(--grey);border:1px solid var(--grey-mid);padding:24px;">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--grey-light);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:16px;">Build Phases</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;">
+            <div style="background:var(--black);border:1px solid #4ade8044;padding:12px;border-left:3px solid #4ade80;">
+              <div style="font-family:var(--font-mono);font-size:9px;color:#4ade80;letter-spacing:0.2em;margin-bottom:4px;">PHASE 1</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--white);">Foundation</div>
+              <div style="font-family:var(--font-body);font-size:11px;color:#666;margin-top:4px;">Repo, shared packages, auth portal</div>
+            </div>
+            <div style="background:var(--black);border:1px solid var(--grey-mid);padding:12px;border-left:3px solid var(--red);">
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--red);letter-spacing:0.2em;margin-bottom:4px;">PHASE 2</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--white);">Core Platform</div>
+              <div style="font-family:var(--font-body);font-size:11px;color:#666;margin-top:4px;">Band accounts, tours, shows</div>
+            </div>
+            <div style="background:var(--black);border:1px solid var(--grey-mid);padding:12px;border-left:3px solid var(--yellow);">
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--yellow);letter-spacing:0.2em;margin-bottom:4px;">PHASE 3</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--white);">Production</div>
+              <div style="font-family:var(--font-body);font-size:11px;color:#666;margin-top:4px;">Ingest, fly pack, metadata AI</div>
+            </div>
+            <div style="background:var(--black);border:1px solid var(--grey-mid);padding:12px;border-left:3px solid #60a5fa;">
+              <div style="font-family:var(--font-mono);font-size:9px;color:#60a5fa;letter-spacing:0.2em;margin-bottom:4px;">PHASE 4</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--white);">Distribution</div>
+              <div style="font-family:var(--font-body);font-size:11px;color:#666;margin-top:4px;">Licensing, streaming, e-commerce</div>
+            </div>
+            <div style="background:var(--black);border:1px solid var(--grey-mid);padding:12px;border-left:3px solid #c084fc;">
+              <div style="font-family:var(--font-mono);font-size:9px;color:#c084fc;letter-spacing:0.2em;margin-bottom:4px;">PHASE 5</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--white);">Visualization</div>
+              <div style="font-family:var(--font-body);font-size:11px;color:#666;margin-top:4px;">Architecture mind map site</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <script>
-// ── State (persisted to localStorage) ─────────────────────────
+// ==================== STATE ====================
+const state = {
+  tab: 'login',
+  githubConnected: false,
+  wolfSigned: false,
+  daveSigned: false,
+  currentUser: 'wolfschram',
+  wolfSignTime: null,
+  daveSignTime: null
+};
 
-const STORAGE_KEY = 'rrud_users';
+// ==================== MODULES DATA ====================
+const modules = [
+  {
+    id: 'auth',
+    num: '01',
+    name: 'Auth Portal',
+    desc: 'Single entry point. First-login enforcement. GitHub identity linking. Co-owner agreement signing.',
+    color: '#e8132a',
+    tags: ['Next.js 14', 'NextAuth.js v5', 'PostgreSQL', 'Redis', 'GitHub OAuth'],
+    deps: [
+      { num: '01', name: 'Auth Core', pkg: 'next-auth@5', desc: 'Session management, OAuth providers, JWT handling' },
+      { num: '02', name: 'GitHub OAuth', pkg: '@octokit/oauth-app', desc: 'Link GitHub identity, repo access scoping' },
+      { num: '03', name: 'Database ORM', pkg: 'prisma + @prisma/client', desc: 'User schema, sessions, tokens' },
+      { num: '04', name: 'Session Cache', pkg: 'ioredis', desc: 'Fast session reads, one-time token TTL' },
+      { num: '05', name: 'Password Hash', pkg: 'bcryptjs', desc: 'Secure password storage, bcrypt rounds' },
+      { num: '06', name: 'Token JWT', pkg: 'jose', desc: 'JWT signing/verification RS256' },
+      { num: '07', name: 'Email', pkg: 'resend', desc: 'Invite emails, first-login flow, notifications' },
+      { num: '08', name: 'Validation', pkg: 'zod', desc: 'Schema validation on all API routes' },
+      { num: '09', name: 'Rate Limiting', pkg: '@upstash/ratelimit', desc: 'Brute force protection on login endpoints' },
+      { num: '10', name: 'Audit Log', pkg: 'pino', desc: 'Immutable auth event log, shipped to S3' },
+      { num: '11', name: 'Co-Owner Sign', pkg: 'custom + date-fns', desc: 'Timestamped click-to-sign, SHA256 agreement hash' },
+      { num: '12', name: 'OTT Flow', pkg: 'nanoid + redis TTL', desc: 'One-time tokens, 24h expiry, single-use' }
+    ],
+    schema: `users: id, username, email, password_hash, role,
+         github_id, github_username, github_access_token,
+         first_login_complete, co_owner_signed_at
+one_time_tokens: id, user_id, token_hash, purpose, expires_at
+sessions: id, user_id, refresh_token_hash, ip_address, expires_at
+co_owner_signatures: id, user_id, signed_at, ip_address, agreement_hash
+audit_log: id, user_id, action, resource, metadata, ip_address`
+  },
+  {
+    id: 'bands',
+    num: '02',
+    name: 'Band Accounts',
+    desc: 'Full account infrastructure for artists. Members, tours, shows, storage, access control, content ownership.',
+    color: '#f5c800',
+    tags: ['Multi-tenant', 'CASL RBAC', 'BullMQ', 'S3', 'Socket.io'],
+    deps: [
+      { num: '01', name: 'File Upload', pkg: '@aws-sdk/client-s3 + @uppy/core', desc: 'Direct-to-S3 multipart upload, resumable' },
+      { num: '02', name: 'Media Process', pkg: 'ffmpeg + fluent-ffmpeg', desc: 'Transcode, thumbnail, proxy generation' },
+      { num: '03', name: 'Search', pkg: 'meilisearch', desc: 'Fast band and content discovery' },
+      { num: '04', name: 'Job Queue', pkg: 'bullmq + redis', desc: 'Async: transcode, sync, notify jobs' },
+      { num: '05', name: 'Permissions', pkg: 'casl', desc: 'Role-based access control per band account' },
+      { num: '06', name: 'Images', pkg: 'sharp', desc: 'Artwork, thumbnails, profile image processing' },
+      { num: '07', name: 'Realtime', pkg: 'socket.io', desc: 'Upload progress, live approvals, notifications' },
+      { num: '08', name: 'Webhooks', pkg: 'svix', desc: 'Reliable outbound hooks to promoter/label partners' },
+      { num: '09', name: 'Versioning', pkg: 'S3 object versioning', desc: 'Immutable content history per asset' },
+      { num: '10', name: 'Invites', pkg: 'nanoid + resend', desc: 'Band member invites and access grants' }
+    ],
+    schema: `bands: id, name, slug, tier, storage_quota_gb, metadata
+band_members: id, band_id, user_id, role, permissions
+tours: id, band_id, name, start_date, end_date, status, production_config
+shows: id, tour_id, band_id, venue, show_date, ingest_node_id, camera_count`
+  },
+  {
+    id: 'ingest',
+    num: '03',
+    name: 'Live Ingest + Fly Pack',
+    desc: 'Edge hardware abstraction. COTS servers at venue. 4K ProRes 422. 20+ cameras. SMPTE 2110, NDI, SDI. Parallel cloud sync.',
+    color: '#60a5fa',
+    tags: ['SMPTE 2110', 'NDI 5', 'ProRes 422', 'VISCA-over-IP', 'PTP Sync'],
+    deps: [
+      { num: '01', name: 'SMPTE 2110', pkg: 'node-srt + C++ addon', desc: 'ST 2110-20/30/40 receive — video, audio, ancillary' },
+      { num: '02', name: 'NDI SDK', pkg: 'NewTek NDI SDK bindings', desc: 'NDI source discovery and receive' },
+      { num: '03', name: 'FFmpeg', pkg: 'fluent-ffmpeg + static build', desc: 'ProRes 422 HQ encoding, mux, segment' },
+      { num: '04', name: 'Camera Control', pkg: 'custom VISCA-over-IP', desc: 'PTZ: pan, tilt, zoom, focus, iris per camera' },
+      { num: '05', name: 'RCP Control', pkg: 'Sony RCPU API adapter', desc: 'Full remote control panel emulation' },
+      { num: '06', name: 'Cloud Upload', pkg: '@aws-sdk/lib-storage multipart', desc: 'Parallel 4K chunk upload — runs during recording' },
+      { num: '07', name: 'Edge Orchestration', pkg: 'Docker Engine API + dockerode', desc: 'Remote container management per node' },
+      { num: '08', name: 'Sync State', pkg: 'Redis Streams', desc: 'Real-time ingest status, camera health broadcast' },
+      { num: '09', name: 'Clock Sync', pkg: 'PTP IEEE 1588 via ptpd', desc: 'Sub-microsecond sync across all cameras' },
+      { num: '10', name: 'Fallback Buffer', pkg: 'NVMe ring buffer', desc: 'Local hold if cloud link drops — auto-resume on reconnect' },
+      { num: '11', name: 'Health Monitor', pkg: 'prom-client → Prometheus', desc: 'Edge node: CPU, temp, disk, network vitals' },
+      { num: '12', name: 'Asset Manifest', pkg: 'custom JSON schema', desc: 'Per-show clip manifest with timecode index' }
+    ],
+    schema: `Camera API: GET /cameras, POST /cameras/{id}/move,
+            POST /cameras/{id}/focus, POST /cameras/{id}/iris
+Ingest API: POST /ingest/start, POST /ingest/stop,
+            GET /ingest/status, GET /cameras/{id}/preview
+Edge node min spec: 128GB RAM, NVMe RAID, 10GbE, Docker`
+  },
+  {
+    id: 'metadata',
+    num: '04',
+    name: 'Metadata Engine',
+    desc: 'AI-powered content detection. Scene boundaries, face ID, speech-to-text, object detection, audio analysis. Minutes from show end.',
+    color: '#c084fc',
+    tags: ['Python', 'PyTorch', 'Whisper', 'YOLOv8', 'Qdrant'],
+    deps: [
+      { num: '01', name: 'Scene Detection', pkg: 'scenedetect', desc: 'Cut detection, scene boundaries per clip' },
+      { num: '02', name: 'Face Recognition', pkg: 'deepface / AWS Rekognition', desc: 'Artist and performer identification' },
+      { num: '03', name: 'Speech-to-Text', pkg: 'openai-whisper large-v3', desc: 'Lyrics, MC announcements, setlist detection' },
+      { num: '04', name: 'Object Detection', pkg: 'ultralytics YOLOv8', desc: 'Instruments, logos, stage elements' },
+      { num: '05', name: 'Audio Analysis', pkg: 'librosa', desc: 'BPM, key, energy, song boundary detection' },
+      { num: '06', name: 'Embeddings', pkg: 'sentence-transformers', desc: 'Semantic content search vectors' },
+      { num: '07', name: 'Vector DB', pkg: 'qdrant-client', desc: 'Store and query content embeddings at scale' },
+      { num: '08', name: 'OCR', pkg: 'pytesseract + easyocr', desc: 'Screen text, setlists, signage detection' },
+      { num: '09', name: 'Brand Detection', pkg: 'custom CLIP fine-tune', desc: 'Sponsor logos, band merch identification' },
+      { num: '10', name: 'Metadata Export', pkg: 'pydantic + JSON Schema', desc: 'Structured metadata output per asset' }
+    ],
+    schema: `Output per asset: asset_id, show_id, band_id, camera_slot,
+timecode_start/end, technical{codec,resolution,fps},
+content{scene_type, performers, lyrics, song, energy},
+rights{license_status, clearance_required},
+brands_detected[], tags[], quality_score`
+  },
+  {
+    id: 'licensing',
+    num: '05',
+    name: 'Licensing System',
+    desc: 'Foundation layer for rights management. Access grants, content windows, usage tracking. Designed for external platforms to integrate.',
+    color: '#fb923c',
+    tags: ['Fastify', 'OpenAPI 3.1', 'ClickHouse', 'Svix', 'Signed URLs'],
+    deps: [
+      { num: '01', name: 'API Gateway', pkg: 'fastify + @fastify/swagger', desc: 'RESTful API with full OpenAPI spec' },
+      { num: '02', name: 'Rights Schema', pkg: 'custom + zod', desc: 'Flexible license type definitions' },
+      { num: '03', name: 'Access Tokens', pkg: 'jose JWT', desc: 'Time-scoped, purpose-scoped access tokens' },
+      { num: '04', name: 'Webhook Engine', pkg: 'svix', desc: 'Reliable outbound webhooks to rights partners' },
+      { num: '05', name: 'Usage Tracking', pkg: 'clickhouse', desc: 'High-volume access event logging at scale' },
+      { num: '06', name: 'CDN Signing', pkg: '@aws-sdk/cloudfront-signer', desc: 'Signed URLs for protected content, 1h expiry' },
+      { num: '07', name: 'Audit Trail', pkg: 'pino + S3 archive', desc: 'Immutable rights usage log' },
+      { num: '08', name: 'Approvals', pkg: 'bullmq', desc: 'Async approval workflows for content access' },
+      { num: '09', name: 'Partner API', pkg: 'OpenAPI 3.1 spec', desc: 'Integration interface for Frame.io, Mediasilo, etc.' },
+      { num: '10', name: 'Rate Limiting', pkg: '@upstash/ratelimit', desc: 'API partner abuse prevention' }
+    ],
+    schema: `External rights platforms integrate via OpenAPI 3.1 spec.
+RRUD provides: asset catalog, access tokens, usage events.
+Partners provide: license terms, clearance status, rights windows.
+Integration points: Frame.io, Mediasilo, custom label systems.`
+  },
+  {
+    id: 'streaming',
+    num: '06',
+    name: 'Streaming + Distribution',
+    desc: 'Music and video streaming. Live broadcast distribution. Fan playback. DSP pipeline to Spotify/Apple Music.',
+    color: '#4ade80',
+    tags: ['HLS/DASH', 'DRM', 'Mux', 'CDN', 'DSP Pipeline'],
+    deps: [
+      { num: '01', name: 'HLS Packaging', pkg: 'ffmpeg + hls.js', desc: 'Adaptive bitrate streaming for video' },
+      { num: '02', name: 'DASH', pkg: 'dash.js', desc: 'MPEG-DASH for premium client delivery' },
+      { num: '03', name: 'CDN', pkg: 'CloudFront / Cloudflare', desc: 'Global edge delivery, lowest latency' },
+      { num: '04', name: 'DRM', pkg: 'Widevine + FairPlay via Mux', desc: 'Content protection for premium content' },
+      { num: '05', name: 'Live Stream', pkg: 'node-media-server or Mux Live', desc: 'RTMP ingest to HLS output for live shows' },
+      { num: '06', name: 'Video Player', pkg: 'video.js + custom skin', desc: 'Web player, embeddable for third parties' },
+      { num: '07', name: 'Audio Player', pkg: 'howler.js', desc: 'Music streaming player' },
+      { num: '08', name: 'QoE Analytics', pkg: 'mux-data', desc: 'Playback quality-of-experience metrics' },
+      { num: '09', name: 'DSP Integration', pkg: 'custom adapters', desc: 'Spotify, Apple Music delivery pipeline' },
+      { num: '10', name: 'Offline', pkg: 'Service Worker + IndexedDB', desc: 'Progressive web app offline support' }
+    ],
+    schema: `Delivery tiers: Live (RTMP→HLS, <10s latency),
+VOD (HLS/DASH adaptive), Download (signed S3 URL),
+Embed (video.js iframe), DSP (FLAC/MP3 delivery pipeline).
+DRM: Widevine (Android/Chrome), FairPlay (iOS/Safari).`
+  },
+  {
+    id: 'ecommerce',
+    num: '07',
+    name: 'E-Commerce',
+    desc: 'Fan-facing store. Merch, downloads, live recordings. Individual band stores with promoter revenue share.',
+    color: '#f472b6',
+    tags: ['Stripe', 'Digital Delivery', 'Subscriptions', 'Revenue Share'],
+    deps: [
+      { num: '01', name: 'Payments', pkg: 'stripe', desc: 'Cards, subscriptions, international payouts' },
+      { num: '02', name: 'Storefront', pkg: 'Next.js Commerce or custom', desc: 'Product pages, cart, checkout flow' },
+      { num: '03', name: 'Inventory', pkg: 'custom + PostgreSQL', desc: 'Digital and physical inventory management' },
+      { num: '04', name: 'Digital Delivery', pkg: 'signed S3 URLs + email', desc: 'Download delivery post-purchase' },
+      { num: '05', name: 'Print Fulfillment', pkg: 'Printful API or custom', desc: 'Physical merch drop-ship integration' },
+      { num: '06', name: 'Tax', pkg: 'taxjar or stripe-tax', desc: 'International tax compliance, auto-calculate' },
+      { num: '07', name: 'Subscriptions', pkg: 'Stripe Billing', desc: 'Fan club and content access tier billing' },
+      { num: '08', name: 'Revenue Share', pkg: 'Stripe Connect', desc: 'Split payments: band + promoter + platform' },
+      { num: '09', name: 'Analytics', pkg: 'posthog', desc: 'Conversion, funnel, revenue analytics' },
+      { num: '10', name: 'Notifications', pkg: 'Resend + Twilio SMS', desc: 'Order confirmation, shipping, new drops' }
+    ],
+    schema: `Revenue flow: Fan purchase → Stripe → Stripe Connect splits:
+Band account (%), Promoter account (%), Platform fee (%).
+Physical: fulfilled by Printful or custom warehouse partner.
+Digital: signed S3 URL, 48h access, re-download available.`
+  },
+  {
+    id: 'viz',
+    num: '08',
+    name: 'Architecture Viz Site',
+    desc: 'This platform. Interactive mind map for Wolf + Dave. Drill from concept to dependency to code. Linked to GitHub. External pitch surface.',
+    color: '#a78bfa',
+    tags: ['Next.js 14', 'ReactFlow', 'GitHub API', 'Vercel/CF Pages'],
+    deps: [
+      { num: '01', name: 'Mind Map Engine', pkg: 'reactflow', desc: 'Node-based interactive diagram — infinite canvas' },
+      { num: '02', name: 'Framework', pkg: 'Next.js 14 App Router', desc: 'SSR for SEO, client interactivity' },
+      { num: '03', name: 'GitHub Status', pkg: '@octokit/rest', desc: 'Live CI/CD badges, last deploy, PR counts' },
+      { num: '04', name: 'Auth', pkg: 'shared-auth package', desc: 'Co-owner edit mode, public read mode' },
+      { num: '05', name: 'Diagram State', pkg: 'zustand', desc: 'Client-side diagram state management' },
+      { num: '06', name: 'Animations', pkg: 'framer-motion', desc: 'Drill-down transitions, node expand/collapse' },
+      { num: '07', name: 'Search', pkg: 'fuse.js', desc: 'Client-side fuzzy search across all nodes' },
+      { num: '08', name: 'Export', pkg: 'html-to-image', desc: 'Export diagram as PNG/SVG for pitch decks' },
+      { num: '09', name: 'Deploy', pkg: 'Vercel or Cloudflare Pages', desc: 'CDN-deployed, instant global updates' },
+      { num: '10', name: 'Analytics', pkg: 'posthog', desc: 'Track external visitor engagement for pitch validation' }
+    ],
+    schema: `Two modes:
+PUBLIC: Full architecture visible, all modules drillable.
+CO-OWNER (logged in): Add nodes, annotate, link to GitHub issues,
+mark items Wolf/Dave, show sandbox branch status.
+Each node links to: file path, GitHub PR, or open issue.`
+  }
+];
 
-function loadUsers() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+let expandedModule = null;
+
+// ==================== BUILD MODULE GRID ====================
+function buildGrid() {
+  const grid = document.getElementById('module-grid');
+  grid.innerHTML = '';
+  modules.forEach(mod => {
+    const card = document.createElement('div');
+    card.className = 'module-card';
+    card.id = `mod-${mod.id}`;
+    card.style.setProperty('--module-color', mod.color);
+    card.innerHTML = `
+      <div class="mod-number">${mod.num}</div>
+      <div class="mod-name">${mod.name}</div>
+      <div class="mod-desc">${mod.desc}</div>
+      <div class="mod-tags">${mod.tags.map(t => `<span class="mod-tag">${t}</span>`).join('')}</div>
+      <div class="expanded-content">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--grey-light);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:12px;">Dependencies — ${mod.deps.length} defined</div>
+        <div class="dep-grid">${mod.deps.map(d => `
+          <div class="dep-card">
+            <div class="dep-num">DEP ${d.num}</div>
+            <div class="dep-name">${d.name}</div>
+            <div class="dep-pkg">${d.pkg}</div>
+            <div class="dep-desc">${d.desc}</div>
+          </div>`).join('')}
+        </div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--grey-light);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;">Schema / API Surface</div>
+        <div class="schema-block">${mod.schema}</div>
+        <button class="collapse-btn" onclick="collapseModule(event,'${mod.id}')">↑ Collapse</button>
+      </div>
+    `;
+    card.addEventListener('click', (e) => {
+      if(e.target.classList.contains('collapse-btn') || e.target.closest('.collapse-btn')) return;
+      if(!card.classList.contains('expanded')) expandModule(mod.id);
+    });
+    grid.appendChild(card);
+  });
 }
-function saveUsers(users) { localStorage.setItem(STORAGE_KEY, JSON.stringify(users)); }
-function getCurrentUser() { return sessionStorage.getItem('rrud_current'); }
-function setCurrentUser(email) { sessionStorage.setItem('rrud_current', email); }
 
-// Seed Wolf's account
-const users = loadUsers();
-if (!users['wolf@archive-35.com']) {
-  users['wolf@archive-35.com'] = {
-    email: 'wolf@archive-35.com',
-    username: 'wolf',
-    password: 'rrud2026wolf!',
-    role: 'co_owner',
-    githubUsername: 'wolfschram',
-    githubConnected: true,
-    agreementSigned: false,
-    signedAt: null,
-    createdAt: new Date().toISOString(),
-  };
-  saveUsers(users);
+function expandModule(id) {
+  if(expandedModule) {
+    document.getElementById(`mod-${expandedModule}`)?.classList.remove('expanded');
+  }
+  expandedModule = id;
+  const card = document.getElementById(`mod-${id}`);
+  card.classList.add('expanded');
+  setTimeout(() => card.scrollIntoView({behavior:'smooth', block:'start'}), 50);
 }
 
-// ── DOM helpers ───────────────────────────────────────────────
-
-const $ = id => document.getElementById(id);
-const show = id => $(id).classList.remove('hidden');
-const hide = id => $(id).classList.add('hidden');
-const showErr = (id, msg) => { $(id).textContent = msg; show(id); };
-const hideErr = id => hide(id);
-
-// ── Check if already logged in ────────────────────────────────
-
-if (getCurrentUser()) {
-  const u = loadUsers()[getCurrentUser()];
-  if (u && u.githubConnected && u.agreementSigned) {
-    showWorkspace(u);
-  }
+function collapseModule(e, id) {
+  e.stopPropagation();
+  document.getElementById(`mod-${id}`)?.classList.remove('expanded');
+  expandedModule = null;
 }
 
-// ── Step 0: Login ─────────────────────────────────────────────
+// ==================== AUTH FLOWS ====================
+function setTab(tab) {
+  state.tab = tab;
+  document.getElementById('tab-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('tab-first').style.display = tab === 'first' ? 'block' : 'none';
+  document.querySelectorAll('.login-tab').forEach((b,i) => {
+    b.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='first'));
+  });
+}
 
-$('login-btn').onclick = () => {
-  const email = $('login-email').value.trim().toLowerCase();
-  const pass = $('login-pass').value;
-  if (!email) { showErr('login-error', 'Email required'); return; }
-  hideErr('login-error');
+function handleLogin() {
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const status = document.getElementById('login-status');
 
-  const users = loadUsers();
-  const user = users[email];
+  if(!user || !pass) { status.textContent = 'Enter username and password.'; status.className='status-msg error'; return; }
 
-  if (user && user.password && user.password !== pass) {
-    showErr('login-error', 'Invalid password');
-    return;
-  }
-
-  // New user (invited) or existing
-  if (!user) {
-    users[email] = {
-      email,
-      username: '',
-      password: '',
-      role: 'co_owner',
-      githubUsername: '',
-      githubConnected: false,
-      agreementSigned: false,
-      signedAt: null,
-      createdAt: new Date().toISOString(),
-    };
-    saveUsers(users);
-  }
-
-  setCurrentUser(email);
-  const u = users[email];
-
-  // Route to correct step
-  if (!u.username || !u.password) {
-    hide('s-login'); show('step-indicators'); show('s-creds');
-    updateDots(0);
-  } else if (!u.githubConnected) {
-    hide('s-login'); show('step-indicators'); show('s-github');
-    updateDots(1);
-  } else if (!u.agreementSigned) {
-    hide('s-login'); show('step-indicators'); show('s-agree');
-    updateDots(2);
-  } else {
-    showWorkspace(u);
-  }
-};
-
-$('login-pass').onkeydown = e => { if (e.key === 'Enter') $('login-btn').click(); };
-
-// ── Step 1: Credentials ──────────────────────────────────────
-
-$('cred-btn').onclick = () => {
-  const username = $('cred-user').value.trim();
-  const pass = $('cred-pass').value;
-  if (!username || username.length < 2) { showErr('cred-error', 'Username required (min 2 chars)'); return; }
-  if (!pass || pass.length < 12) { showErr('cred-error', 'Password must be at least 12 characters'); return; }
-  hideErr('cred-error');
-
-  const users = loadUsers();
-  const email = getCurrentUser();
-  users[email].username = username;
-  users[email].password = pass;
-  saveUsers(users);
-
-  hide('s-creds'); show('s-github');
-  updateDots(1);
-};
-
-// ── Step 2: GitHub ────────────────────────────────────────────
-
-$('gh-btn').onclick = () => {
-  const gh = $('gh-user').value.trim();
-  if (!gh) { showErr('gh-error', 'GitHub username required'); return; }
-  hideErr('gh-error');
-
-  const users = loadUsers();
-  const email = getCurrentUser();
-  users[email].githubUsername = gh;
-  users[email].githubConnected = true;
-  saveUsers(users);
-
-  hide('gh-form');
-  $('gh-display').textContent = '@' + gh;
-  show('gh-done');
-};
-
-$('gh-next-btn').onclick = () => {
-  hide('s-github'); show('s-agree');
-  updateDots(2);
-};
-
-// ── Step 3: Agreement ─────────────────────────────────────────
-
-$('sign-btn').onclick = () => {
-  const users = loadUsers();
-  const email = getCurrentUser();
-  users[email].agreementSigned = true;
-  users[email].signedAt = new Date().toISOString();
-  saveUsers(users);
-
-  $('sign-btn').textContent = 'Signed \u2713';
-  $('sign-btn').classList.add('signed');
-
+  status.textContent = 'Authenticating...'; status.className='status-msg';
   setTimeout(() => {
-    hide('s-agree'); hide('step-indicators'); show('s-done');
-    const u = users[email];
-    $('done-user').textContent = u.username;
-    $('done-gh').textContent = '@' + u.githubUsername;
-    $('done-gh2').textContent = '@' + u.githubUsername;
-  }, 400);
-};
-
-// ── Step 4: Enter workspace ───────────────────────────────────
-
-$('enter-btn').onclick = () => {
-  const users = loadUsers();
-  const u = users[getCurrentUser()];
-  showWorkspace(u);
-};
-
-// ── Workspace ─────────────────────────────────────────────────
-
-function showWorkspace(user) {
-  $('onboarding').style.display = 'none';
-  $('workspace').style.display = 'flex';
-  document.body.style.alignItems = 'flex-start';
-  document.body.style.paddingTop = '40px';
-
-  $('ws-user').textContent = user.username + ' (@' + user.githubUsername + ')';
-
-  const users = loadUsers();
-  const allUsers = Object.values(users);
-  const signed = allUsers.filter(u => u.agreementSigned);
-  $('ws-owners').textContent = signed.length;
-
-  let sigHtml = '';
-  for (const u of allUsers) {
-    const status = u.agreementSigned
-      ? '<span style="color:var(--green)">\u2713 Signed ' + new Date(u.signedAt).toLocaleDateString() + '</span>'
-      : '<span style="color:var(--accent)">Pending</span>';
-    const ghLink = u.githubConnected
-      ? '<a href="https://github.com/' + u.githubUsername + '" target="_blank" style="color:var(--accent)">@' + u.githubUsername + '</a>'
-      : '<span style="color:var(--dim)">Not connected</span>';
-    sigHtml += u.username + ' — ' + ghLink + ' — ' + status + '<br>';
-  }
-  $('ws-signatures').innerHTML = sigHtml;
+    state.currentUser = user;
+    showAgreementScreen();
+  }, 800);
 }
 
-// ── Logout ────────────────────────────────────────────────────
+function mockGithubLogin() {
+  document.getElementById('login-status').textContent = 'GitHub OAuth → redirecting...';
+  document.getElementById('login-status').className='status-msg';
+  setTimeout(() => {
+    state.currentUser = 'wolfschram';
+    state.githubConnected = true;
+    showAgreementScreen();
+  }, 1000);
+}
 
-$('logout-btn').onclick = () => {
-  sessionStorage.removeItem('rrud_current');
-  location.reload();
-};
+function handleOTT() {
+  const token = document.getElementById('ott-input').value.trim();
+  const status = document.getElementById('ott-status');
+  if(!token) { status.textContent = 'Enter your one-time token.'; status.className='status-msg error'; return; }
+  status.textContent = 'Validating token...'; status.className='status-msg';
+  setTimeout(() => {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('first-login-screen').style.display = 'flex';
+  }, 800);
+}
 
-// ── Dot updater ───────────────────────────────────────────────
+function mockGithubConnect() {
+  state.githubConnected = true;
+  document.getElementById('gh-btn-text').textContent = '✓ GitHub Connected (wolfschram)';
+}
 
-function updateDots(activeIdx) {
-  for (let i = 1; i <= 3; i++) {
-    const dot = $('dot-' + i);
-    dot.className = 'dot';
-    if (i - 1 < activeIdx) dot.classList.add('done');
-    else if (i - 1 === activeIdx) dot.classList.add('active');
-    $('lbl-' + i).style.color = (i - 1 <= activeIdx) ? 'var(--text)' : '#444';
+function handleFirstLoginSubmit() {
+  const newUser = document.getElementById('new-username').value.trim();
+  const newPass = document.getElementById('new-pass').value;
+  const confirmPass = document.getElementById('confirm-pass').value;
+  const status = document.getElementById('first-login-status');
+
+  if(!newUser) { status.textContent = 'Choose a username.'; status.className='status-msg error'; return; }
+  if(newPass.length < 12) { status.textContent = 'Password must be 12+ characters.'; status.className='status-msg error'; return; }
+  if(newPass !== confirmPass) { status.textContent = 'Passwords do not match.'; status.className='status-msg error'; return; }
+  if(!state.githubConnected) { status.textContent = 'Connect GitHub first.'; status.className='status-msg error'; return; }
+
+  state.currentUser = newUser;
+  status.textContent = 'Credentials saved. Loading agreement...'; status.className='status-msg success';
+  setTimeout(() => {
+    document.getElementById('first-login-screen').style.display = 'none';
+    showAgreementScreen();
+  }, 800);
+}
+
+function showAgreementScreen() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('first-login-screen').style.display = 'none';
+  document.getElementById('agreement-screen').style.display = 'flex';
+}
+
+function signAgreement(who) {
+  const now = new Date();
+  const timeStr = now.toISOString().replace('T',' ').slice(0,19) + ' UTC';
+
+  if(who === 'wolf') {
+    state.wolfSigned = true;
+    state.wolfSignTime = timeStr;
+    document.getElementById('wolf-sign-btn').textContent = '✓ Signed';
+    document.getElementById('wolf-sign-btn').classList.add('done');
+    document.getElementById('wolf-sign-row').classList.add('signed');
+    document.getElementById('wolf-sign-meta').textContent = `Los Angeles, CA · Co-Owner A · Signed ${timeStr}`;
+  } else {
+    state.daveSigned = true;
+    state.daveSignTime = timeStr;
+    document.getElementById('dave-sign-btn').textContent = '✓ Signed';
+    document.getElementById('dave-sign-btn').classList.add('done');
+    document.getElementById('dave-sign-row').classList.add('signed');
+    document.getElementById('dave-sign-meta').textContent = `Cincinnati, OH · Co-Owner B · Signed ${timeStr}`;
   }
+
+  if(state.wolfSigned && state.daveSigned) {
+    document.getElementById('proceed-btn').classList.add('ready');
+  }
+}
+
+function enterPlatform() {
+  if(!state.wolfSigned || !state.daveSigned) return;
+  document.getElementById('agreement-screen').style.display = 'none';
+  document.getElementById('platform-screen').style.display = 'flex';
+  document.getElementById('topbar-username').textContent = state.currentUser;
+
+  // update legal tab signatures
+  document.getElementById('legal-wolf-time').textContent = state.wolfSignTime || '—';
+  if(state.daveSigned) {
+    document.getElementById('legal-dave-indicator').classList.add('signed');
+    document.getElementById('legal-dave-time').textContent = state.daveSignTime;
+  }
+
+  buildGrid();
+}
+
+// ==================== SECTION NAVIGATION ====================
+function showSection(name) {
+  ['architecture','sandboxes','legal','github'].forEach(s => {
+    document.getElementById(`section-${s}`).style.display = s === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => {
+    if(b.textContent.toLowerCase().includes(name.toLowerCase().slice(0,4))) b.classList.add('active');
+  });
 }
 </script>
 </body>
