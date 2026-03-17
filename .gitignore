@@ -1,0 +1,40 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build
+.next/
+dist/
+.turbo/
+out/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# ide
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# db
+*.db
+*.sqlite
+
+# docker
+docker-compose.override.yml
+
+# python (metadata-engine)
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# test
+coverage/
+
+# logs
+*.log

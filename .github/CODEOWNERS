@@ -1,0 +1,12 @@
+# Rock&Roll UpsideDown — CODEOWNERS
+# Both co-owners required for all changes to main
+
+# Default: both owners must approve
+* @wolfschram
+
+# When Dave's GitHub is connected via the portal, add:
+# * @wolfschram @dave-github-username
+
+# Sandboxes: no approval required (CI skips these)
+# sandbox-wolf/ — Wolf only
+# sandbox-dave/ — Dave only
