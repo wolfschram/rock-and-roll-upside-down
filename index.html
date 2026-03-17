@@ -1002,8 +1002,8 @@
     </div>
 
     <div style="font-family:var(--font-mono);font-size:10px;color:#555;letter-spacing:0.1em;margin:12px 0 16px;line-height:1.7;">
-      Both parties must sign before platform access is granted.<br>
-      Your signature, timestamp, and IP are recorded immutably.
+      Sign your line to enter the platform.<br>
+      The other co-owner's signature will appear when they sign separately.
     </div>
 
     <button class="sign-proceed-btn" id="proceed-btn" onclick="enterPlatform()">Enter Platform →</button>
@@ -1131,9 +1131,9 @@
         <div class="signature-status">
           <div class="sig-title">Signature Status</div>
           <div class="sig-row">
-            <div class="sig-indicator signed"></div>
+            <div class="sig-indicator" id="legal-wolf-indicator"></div>
             <div class="sig-name">Wolf Schram</div>
-            <div class="sig-time" id="legal-wolf-time">—</div>
+            <div class="sig-time" id="legal-wolf-time">Pending</div>
           </div>
           <div class="sig-row">
             <div class="sig-indicator" id="legal-dave-indicator"></div>
@@ -1711,7 +1711,10 @@ function showAgreementScreen() {
     document.getElementById('dave-sign-row').classList.add('signed');
     document.getElementById('dave-sign-meta').textContent = `Cincinnati, OH \u00b7 Co-Owner B \u00b7 Signed ${state.daveSignTime}`;
   }
-  if (state.wolfSigned && state.daveSigned) {
+  // Enable enter if current user has signed
+  const accounts2 = loadAccounts();
+  const me = accounts2[state.currentEmail];
+  if (me && me.agreementSigned) {
     document.getElementById('proceed-btn').classList.add('ready');
   }
 }
@@ -1754,19 +1757,28 @@ function signAgreement(who) {
     }
   }
 
-  if(state.wolfSigned && state.daveSigned) {
+  // Enable enter button once YOU have signed
+  const accounts = loadAccounts();
+  const currentAcct = accounts[state.currentEmail];
+  if (currentAcct && currentAcct.agreementSigned) {
     document.getElementById('proceed-btn').classList.add('ready');
   }
 }
 
 function enterPlatform() {
-  if(!state.wolfSigned || !state.daveSigned) return;
+  // Only need YOUR signature to enter — other co-owner signs on their own time
+  const accounts = loadAccounts();
+  const currentAcct = accounts[state.currentEmail];
+  if (!currentAcct || !currentAcct.agreementSigned) return;
   document.getElementById('agreement-screen').style.display = 'none';
   document.getElementById('platform-screen').style.display = 'flex';
   document.getElementById('topbar-username').textContent = state.currentUser;
 
   // update legal tab signatures
-  document.getElementById('legal-wolf-time').textContent = state.wolfSignTime || '—';
+  if(state.wolfSigned) {
+    document.getElementById('legal-wolf-indicator').classList.add('signed');
+    document.getElementById('legal-wolf-time').textContent = state.wolfSignTime;
+  }
   if(state.daveSigned) {
     document.getElementById('legal-dave-indicator').classList.add('signed');
     document.getElementById('legal-dave-time').textContent = state.daveSignTime;
