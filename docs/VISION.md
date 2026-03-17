@@ -94,13 +94,13 @@ We are not trying to compete with Spotify. We are building the pipes that feed i
 
 ---
 
-## Why Wolf and Dave
+## Why Wolf and David
 
 Wolf spent 25 years inside this industry. Not watching it. Inside it. On the buses, in the arenas, designing the fly packs, building the production systems, sitting in the production meetings where the content questions always came up and always went unanswered.
 
 He knows what a show actually produces. He knows what production companies need. He knows what promoters will pay for. He knows the technical specs because he wrote some of them.
 
-Dave brings the engineering depth to build what Wolf has designed.
+David brings the engineering depth to build what Wolf has designed.
 
 Together: industry credibility and technical capability to execute. That combination is rare. It is exactly what a pitch to Live Nation or AEG needs to be taken seriously.
 

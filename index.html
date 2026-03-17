@@ -870,7 +870,7 @@
   <div class="login-header">
     <span class="title-rr">Rock&Roll</span>
     <span class="title-ud">UpsideDown</span>
-    <div class="title-byline">Co-Owner Platform &bull; Wolf Schram &bull; Dave [Cincinnati]</div>
+    <div class="title-byline">Co-Owner Platform &bull; Wolf Schram &bull; David Lemmink</div>
   </div>
 
   <div class="login-box">
@@ -957,7 +957,7 @@
 
     <div class="agreement-scroll" id="agreement-text">
       <h4>Rock&Roll UpsideDown — Co-Ownership Agreement</h4>
-      <p>This agreement establishes the terms under which Wolf Schram ("Co-Owner A") and Dave [Cincinnati] ("Co-Owner B") jointly own and operate the Rock&Roll UpsideDown platform and all intellectual property created within the repository rock-and-roll-upside-down.</p>
+      <p>This agreement establishes the terms under which Wolf Schram ("Co-Owner A") and David Lemmink ("Co-Owner B") jointly own and operate the Rock&Roll UpsideDown platform and all intellectual property created within the repository rock-and-roll-upside-down.</p>
 
       <h4>1. Joint Ownership</h4>
       <p>All intellectual property, code, concepts, designs, business methodologies, and innovations created within this repository or arising from collaboration on this project are jointly owned 50/50 by both co-owners, regardless of who originated the idea or wrote the code.</p>
@@ -998,8 +998,8 @@
 
     <div class="sign-row" id="dave-sign-row">
       <div>
-        <div class="sign-name">Dave</div>
-        <div class="sign-meta" id="dave-sign-meta">Cincinnati, OH &bull; Co-Owner B &bull; Pending signature</div>
+        <div class="sign-name">David Lemmink</div>
+        <div class="sign-meta" id="dave-sign-meta">Cincinnati, OH &bull; dlemmink@reflexdigital.com &bull; Co-Owner B &bull; Pending signature</div>
       </div>
       <button class="sign-btn" id="dave-sign-btn" onclick="signAgreement('dave')">Sign as Co-Owner B</button>
     </div>
@@ -1068,12 +1068,12 @@
             Push freely<br><br>
             <span>To merge into develop:</span><br>
             Open PR → develop<br>
-            Dave reviews (optional)<br>
+            David reviews (optional)<br>
             Becomes jointly owned on merge
           </div>
         </div>
         <div class="sandbox-card dave">
-          <div class="sandbox-owner">Dave</div>
+          <div class="sandbox-owner">David Lemmink</div>
           <div class="sandbox-branch">branch: sandbox/dave</div>
           <div class="sandbox-rule">
             <span>Rules:</span><br>
@@ -1108,7 +1108,7 @@
         <div class="legal-block">
           <div class="legal-clause-num">01</div>
           <div class="legal-clause-title">Joint Ownership</div>
-          <div class="legal-clause-text">All IP, code, concepts, designs, and innovations created within this repository are jointly owned 50/50 by Wolf Schram and Dave, regardless of who originated the idea or wrote the code.</div>
+          <div class="legal-clause-text">All IP, code, concepts, designs, and innovations created within this repository are jointly owned 50/50 by Wolf Schram and David Lemmink, regardless of who originated the idea or wrote the code.</div>
         </div>
         <div class="legal-block">
           <div class="legal-clause-num">02</div>
@@ -1140,7 +1140,7 @@
           </div>
           <div class="sig-row">
             <div class="sig-indicator" id="legal-dave-indicator"></div>
-            <div class="sig-name">Dave</div>
+            <div class="sig-name">David Lemmink</div>
             <div class="sig-time" id="legal-dave-time">Pending</div>
           </div>
         </div>
@@ -1488,7 +1488,7 @@ Digital: signed S3 URL, 48h access, re-download available.`
     id: 'viz',
     num: '08',
     name: 'Architecture Viz Site',
-    desc: 'This platform. Interactive mind map for Wolf + Dave. Drill from concept to dependency to code. Linked to GitHub. External pitch surface.',
+    desc: 'This platform. Interactive mind map for Wolf + David. Drill from concept to dependency to code. Linked to GitHub. External pitch surface.',
     color: '#a78bfa',
     tags: ['Next.js 14', 'ReactFlow', 'GitHub API', 'Vercel/CF Pages'],
     deps: [
@@ -1506,7 +1506,7 @@ Digital: signed S3 URL, 48h access, re-download available.`
     schema: `Two modes:
 PUBLIC: Full architecture visible, all modules drillable.
 CO-OWNER (logged in): Add nodes, annotate, link to GitHub issues,
-mark items Wolf/Dave, show sandbox branch status.
+mark items Wolf/David, show sandbox branch status.
 Each node links to: file path, GitHub PR, or open issue.`
   }
 ];
@@ -1745,7 +1745,7 @@ function showAgreementScreen() {
     document.getElementById('dave-sign-btn').textContent = '\u2713 Signed';
     document.getElementById('dave-sign-btn').classList.add('done');
     document.getElementById('dave-sign-row').classList.add('signed');
-    document.getElementById('dave-sign-meta').textContent = `Cincinnati, OH \u00b7 Co-Owner B \u00b7 Signed ${state.daveSignTime}`;
+    document.getElementById('dave-sign-meta').textContent = `Cincinnati, OH \u00b7 dlemmink@reflexdigital.com \u00b7 Co-Owner B \u00b7 Signed ${state.daveSignTime}`;
   }
   // Enable enter if current user has signed
   const accounts2 = loadAccounts();
@@ -1785,7 +1785,7 @@ function signAgreement(who) {
     document.getElementById('dave-sign-btn').textContent = '\u2713 Signed';
     document.getElementById('dave-sign-btn').classList.add('done');
     document.getElementById('dave-sign-row').classList.add('signed');
-    document.getElementById('dave-sign-meta').textContent = `Cincinnati, OH \u00b7 Co-Owner B \u00b7 Signed ${timeStr}`;
+    document.getElementById('dave-sign-meta').textContent = `Cincinnati, OH \u00b7 dlemmink@reflexdigital.com \u00b7 Co-Owner B \u00b7 Signed ${timeStr}`;
     if (accounts['dlemmink@reflexdigital.com']) {
       accounts['dlemmink@reflexdigital.com'].agreementSigned = true;
       accounts['dlemmink@reflexdigital.com'].signedAt = timeStr;

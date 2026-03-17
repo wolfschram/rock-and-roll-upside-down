@@ -7,7 +7,7 @@
 
 - **Project Name:** Rock&Roll UpsideDown (RRUD)
 - **Repository:** `rock-and-roll-upside-down` (GitHub)
-- **Co-Owners:** Wolf Schram (LA) + Dave [Cincinnati]
+- **Co-Owners:** Wolf Schram (LA) + David Lemmink (Cincinnati)
 - **Entity:** To be formed — 50/50 co-ownership, international operations
 - **Cloud:** Platform-agnostic (AWS/GCP/Azure — abstracted via Terraform/Pulumi)
 - **Runtime Target:** Node.js (primary), Python (ML/metadata services)
@@ -59,7 +59,7 @@ rock-and-roll-upside-down/
 │   ├── seed-db.sh
 │   └── deploy.sh
 ├── sandbox-wolf/            # Wolf's personal sandbox (no CI enforcement)
-├── sandbox-dave/            # Dave's personal sandbox (no CI enforcement)
+├── sandbox-dave/            # David's personal sandbox (no CI enforcement)
 ├── LEGAL_AGREEMENT.md
 └── README.md
 ```
@@ -73,9 +73,9 @@ main                    → Production. Protected. Requires PR + both owners app
 staging                 → Pre-production. Auto-deploys to staging environment.
 develop                 → Integration branch. Feature PRs merge here first.
 feature/wolf-*          → Wolf feature branches (from develop)
-feature/dave-*          → Dave feature branches (from develop)
+feature/dave-*          → David's feature branches (from develop)
 sandbox/wolf            → Wolf's personal playground. Never merges to develop without intent.
-sandbox/dave            → Dave's personal playground. Never merges to develop without intent.
+sandbox/dave            → David's personal playground. Never merges to develop without intent.
 hotfix/*                → Emergency fixes. Merge to main + develop simultaneously.
 ```
 
@@ -125,7 +125,7 @@ hotfix/*                → Emergency fixes. Merge to main + develop simultaneou
 2. Clicks one-time token link (expires 24h, Redis TTL)
 3. Forced: set new username + password
 4. Forced: connect GitHub account (OAuth flow)
-5. If Wolf OR Dave: presented with CO_OWNERSHIP agreement
+5. If Wolf OR David: presented with CO_OWNERSHIP agreement
 6. Click "I agree as co-owner" → timestamped, IP-logged, stored in DB
 7. Both must sign before either gets full platform access
 8. Session created: JWT (15min) + Refresh token (30 days, Redis)
@@ -486,7 +486,7 @@ POST /ingest/stop                → End recording, begin finalization
 ## MODULE 8: ARCHITECTURE VIZ SITE
 ### `apps/architecture-viz/`
 
-**Purpose:** Working platform for Wolf + Dave. Interactive mind map of the full system. Drill-down from concept to dependency to code. Linked to GitHub. External pitch surface.
+**Purpose:** Working platform for Wolf + David. Interactive mind map of the full system. Drill-down from concept to dependency to code. Linked to GitHub. External pitch surface.
 
 ### Stack
 - **Framework:** Next.js 14
@@ -500,7 +500,7 @@ POST /ingest/stop                → End recording, begin finalization
 - Co-owner edit mode: add nodes, annotate, link to GitHub issues
 - GitHub integration: each node can link to a file, PR, or issue
 - Live status: CI/CD badge per module, last deploy timestamp
-- Sandbox indicators: Wolf and Dave sandbox nodes clearly marked
+- Sandbox indicators: Wolf and David sandbox nodes clearly marked
 
 ---
 
@@ -642,13 +642,13 @@ pnpm dev  # starts all apps in parallel via turborepo
 15. `apps/ecommerce-service` — Fan store
 
 **Phase 5 — Visualization**
-16. `apps/architecture-viz` — Mind map site for Wolf + Dave
+16. `apps/architecture-viz` — Mind map site for Wolf + David
 
 ---
 
 ## OPEN QUESTIONS (to resolve in Phase 1)
 
-- [ ] Dave's GitHub username → needed for CODEOWNERS + repo access
+- [ ] David's GitHub username → needed for CODEOWNERS + repo access
 - [ ] Preferred cloud provider → AWS / GCP / Azure (affects Terraform modules)
 - [ ] Legal entity formation → needed before external contracts
 - [ ] Rights management partner → Frame.io / Mediasilo / custom
@@ -657,6 +657,6 @@ pnpm dev  # starts all apps in parallel via turborepo
 ---
 
 *Architecture Version: 1.0*
-*Authors: Wolf Schram + Dave [Cincinnati]*
+*Authors: Wolf Schram + David Lemmink (Cincinnati)*
 *Generated: 2026-03-16*
 *Status: Handover Ready — Claude Code Phase 1*

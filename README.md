@@ -22,6 +22,6 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full system spec.
 ## Co-Owners
 
 - **Wolf Schram** — Los Angeles
-- **Dave** — Cincinnati
+- **David Lemmink** — Cincinnati (dlemmink@reflexdigital.com)
 
 50/50 on all IP, code, revenue. See [LEGAL_AGREEMENT.md](LEGAL_AGREEMENT.md).

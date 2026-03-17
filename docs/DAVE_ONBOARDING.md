@@ -1,9 +1,9 @@
-# DAVE_ONBOARDING.md — Welcome to Rock&Roll UpsideDown
+# DAVE_ONBOARDING.md — Welcome to Rock&Roll UpsideDown, David Lemmink
 ## Everything you need. Start here.
 
 ---
 
-## Hey Dave.
+## Hey David.
 
 Before you read the architecture document and think Wolf has lost his mind — read VISION.md first.
 

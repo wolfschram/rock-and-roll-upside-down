@@ -35,7 +35,8 @@ By clicking "I agree as co-owner" in the RRUD Portal, each party digitally signs
 **Co-Owner A:** Wolf Schram
 - Status: Pending portal sign
 
-**Co-Owner B:** [To be signed via portal]
+**Co-Owner B:** David Lemmink (dlemmink@reflexdigital.com)
+- [To be signed via portal]
 - Status: Pending portal sign
 
 ---

@@ -1,5 +1,5 @@
 # RULES_OF_ENGAGEMENT.md — Rock&Roll UpsideDown
-## How Wolf and Dave Work Together
+## How Wolf and David Work Together
 
 ---
 
@@ -16,7 +16,7 @@ What makes this work is not legal paperwork. It is how we operate day to day. Th
 **Everything in the repo = jointly owned. No exceptions.**
 
 - An idea Wolf has in his sandbox → still 50/50 once it merges to develop
-- Code Dave writes over a weekend → still 50/50 once it merges
+- Code David writes over a weekend → still 50/50 once it merges
 - A concept that one person originated → 50/50 the moment it becomes part of the platform
 - External work (freelancers, contractors) brought in → must be agreed by both, work-for-hire contracts required
 
@@ -71,7 +71,7 @@ ARCHITECTURE.md is the contract. It is not sacred — it can change. But changes
 
 **The current architecture is a starting point — not a cage.**
 
-Wolf designed it. Dave may look at it and have better ideas. That is the point. If Dave reads ARCHITECTURE.md and thinks a module should be built differently — open an issue, make the case, decide together.
+Wolf designed it. David may look at it and have better ideas. That is the point. If David reads ARCHITECTURE.md and thinks a module should be built differently — open an issue, make the case, decide together.
 
 ---
 
@@ -83,9 +83,9 @@ Wolf designed it. Dave may look at it and have better ideas. That is the point. 
 | `staging` | Either, via PR | One owner |
 | `develop` | Either, via PR | One owner |
 | `feature/wolf-*` | Wolf | No |
-| `feature/dave-*` | Dave | No |
+| `feature/dave-*` | David | No |
 | `sandbox/wolf` | Wolf only | None — zero rules |
-| `sandbox/dave` | Dave only | None — zero rules |
+| `sandbox/dave` | David only | None — zero rules |
 
 **The sandbox is sacred space.** Break things. Experiment. Build half an idea. No judgment. No CI. No one comments on what is in your sandbox unless you ask.
 

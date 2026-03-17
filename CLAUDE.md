@@ -5,7 +5,7 @@
 
 ## WHO YOU ARE WORKING WITH
 
-**Wolf Schram** — Co-founder, Co-owner (50/50 with Dave)
+**Wolf Schram** — Co-founder, Co-owner (50/50 with David Lemmink)
 - German-born, bilingual (German/English), based in Santa Clarita / LA
 - 25+ years broadcast engineering + global concert touring (U2, Rolling Stones, McCartney, Beyoncé)
 - Former VP Engineering at Diversified — led ~250 engineers globally (departed Jan 2026)
@@ -13,10 +13,10 @@
 - Communicates via voice-to-text. Auto-correct all errors silently. Never flag them.
 - Inputs are non-linear brain dumps. Extract the real question. Answer that.
 
-**Dave** — Co-founder, Co-owner (50/50)
-- Based in Cincinnati, OH
+**David Lemmink** — Co-founder, Co-owner (50/50)
+- Based in Cincinnati, OH — dlemmink@reflexdigital.com
 - Strong developer — owns backend/infrastructure
-- GitHub account: [ADD DAVE'S GITHUB USERNAME WHEN KNOWN]
+- GitHub account: [ADD DAVID'S GITHUB USERNAME WHEN KNOWN]
 
 ---
 
@@ -35,7 +35,7 @@
 
 **Name:** Rock&Roll UpsideDown (RRUD)
 **Mission:** Redesign how the live music industry creates, archives, licenses, and distributes concert content.
-**Co-owners:** Wolf Schram + Dave — 50/50 on all IP, code, ideas, revenue.
+**Co-owners:** Wolf Schram + David Lemmink — 50/50 on all IP, code, ideas, revenue.
 **Co-ownership agreement:** Signed digitally in the portal. Stored in `LEGAL_AGREEMENT.md`. Both parties required.
 
 ---
@@ -90,7 +90,7 @@ rock-and-roll-upside-down/     ← mono-repo (Turborepo + pnpm workspaces)
 │   ├── CO_OWNERSHIP.md        ← Legal agreement
 │   └── API_SPEC.md            ← OpenAPI specs
 ├── sandbox-wolf/              ← Wolf's sandbox — no CI, no rules
-├── sandbox-dave/              ← Dave's sandbox — no CI, no rules
+├── sandbox-dave/              ← David's sandbox — no CI, no rules
 ├── CLAUDE.md                  ← this file
 └── LEGAL_AGREEMENT.md         ← Co-ownership agreement (both signed)
 ```
@@ -105,12 +105,12 @@ rock-and-roll-upside-down/     ← mono-repo (Turborepo + pnpm workspaces)
 | `staging` | Pre-prod | Auto-deploys to staging env. |
 | `develop` | Integration | All features merge here first. |
 | `feature/wolf-*` | Wolf's features | PR to develop. |
-| `feature/dave-*` | Dave's features | PR to develop. |
+| `feature/dave-*` | David's features | PR to develop. |
 | `sandbox/wolf` | Wolf's playground | Zero CI. Zero enforcement. Zero approval. |
-| `sandbox/dave` | Dave's playground | Zero CI. Zero enforcement. Zero approval. |
+| `sandbox/dave` | David's playground | Zero CI. Zero enforcement. Zero approval. |
 | `hotfix/*` | Emergency fix | Merge to main + develop simultaneously. |
 
-**Sandbox rule:** Wolf and Dave each have a sandbox that cannot break main. Full visibility to each other — no hidden areas. Merge to develop when ready. That merge = jointly owned under agreement.
+**Sandbox rule:** Wolf and David each have a sandbox that cannot break main. Full visibility to each other — no hidden areas. Merge to develop when ready. That merge = jointly owned under agreement.
 
 ---
 
@@ -140,7 +140,7 @@ rock-and-roll-upside-down/     ← mono-repo (Turborepo + pnpm workspaces)
 15. `apps/ecommerce-service` — Fan store
 
 ### Phase 5 — Visualization
-16. `apps/architecture-viz` — Interactive mind map site (the platform Wolf + Dave use to work)
+16. `apps/architecture-viz` — Interactive mind map site (the platform Wolf + David use to work)
 
 **Do not skip phases. Do not jump ahead. Build dependencies in order.**
 
@@ -232,12 +232,12 @@ This platform handles professional broadcast production. Specs matter.
 
 ## CO-OWNERSHIP — HARD RULES
 
-- All IP created in this repo = 50/50 Wolf + Dave. No exceptions.
+- All IP created in this repo = 50/50 Wolf + David Lemmink. No exceptions.
 - `main` branch requires BOTH owners to approve any PR.
 - Major decisions (architecture changes, external partnerships, fundraising) = both owners must agree.
 - Sandbox merges to develop = content becomes jointly owned automatically.
 - Legal agreement is in `LEGAL_AGREEMENT.md`. Do not modify it without both owners.
-- Dave's GitHub must be added to CODEOWNERS before any protected branch is created.
+- David's GitHub must be added to CODEOWNERS before any protected branch is created.
 
 ---
 
@@ -279,7 +279,7 @@ Don't improvise architecture. Everything is specified. If something isn't covere
 **7. The sandboxes are sacred.**
 Sandbox branches are no-judgment zones. Don't enforce CI there. Don't comment on what's in them. They exist so both owners can experiment without consequences.
 
-**8. Dave is a full equal.**
+**8. David is a full equal.**
 Not a contractor. Not a junior. Co-owner. When in doubt about something that affects the main branch, surface it for both owners.
 
 **9. Platform-agnostic until decided.**
@@ -302,7 +302,7 @@ cat ARCHITECTURE.md
 
 ## OPEN ITEMS (as of March 2026)
 
-- [ ] Dave's GitHub username — needed before CODEOWNERS + repo setup
+- [ ] David's GitHub username — needed before CODEOWNERS + repo setup
 - [ ] Cloud provider decision — AWS / GCP / Azure
 - [ ] Legal entity formation — LLC or partnership, US + international
 - [ ] Rights management partner — Frame.io / Mediasilo / custom
@@ -313,6 +313,6 @@ cat ARCHITECTURE.md
 
 *CLAUDE.md version: 1.0*
 *Project: Rock&Roll UpsideDown*
-*Authors: Wolf Schram + Dave*
+*Authors: Wolf Schram + David Lemmink*
 *Created: 2026-03-16*
 *Next review: when Phase 1 complete*
