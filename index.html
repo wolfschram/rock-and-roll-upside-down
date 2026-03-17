@@ -1283,19 +1283,22 @@ const state = {
         if (a.owner === 'wolf' && a.agreementSigned) { state.wolfSigned = true; state.wolfSignTime = a.signedAt; }
         if (a.owner === 'dave' && a.agreementSigned) { state.daveSigned = true; state.daveSignTime = a.signedAt; }
       });
-      if (state.wolfSigned && state.daveSigned) {
+      if (acct.agreementSigned) {
         document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('login-screen').style.display = 'none';
           document.getElementById('platform-screen').style.display = 'flex';
           document.getElementById('topbar-username').textContent = acct.username;
-          document.getElementById('legal-wolf-time').textContent = state.wolfSignTime || '—';
+          if (state.wolfSigned) {
+            document.getElementById('legal-wolf-indicator').classList.add('signed');
+            document.getElementById('legal-wolf-time').textContent = state.wolfSignTime;
+          }
           if (state.daveSigned) {
             document.getElementById('legal-dave-indicator').classList.add('signed');
             document.getElementById('legal-dave-time').textContent = state.daveSignTime;
           }
           buildGrid();
         });
-      } else {
+      } else if (!acct.agreementSigned && acct.firstLoginComplete) {
         document.addEventListener('DOMContentLoaded', () => showAgreementScreen());
       }
     }
@@ -1639,7 +1642,19 @@ function mockGithubLogin() {
     if (a.owner === 'dave' && a.agreementSigned) { state.daveSigned = true; state.daveSignTime = a.signedAt; }
   });
 
-  setTimeout(() => showAgreementScreen(), 600);
+  setTimeout(() => {
+    if (wolf.agreementSigned) {
+      // Already signed — go straight to platform
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('platform-screen').style.display = 'flex';
+      document.getElementById('topbar-username').textContent = wolf.username;
+      if(state.wolfSigned) { document.getElementById('legal-wolf-indicator').classList.add('signed'); document.getElementById('legal-wolf-time').textContent = state.wolfSignTime; }
+      if(state.daveSigned) { document.getElementById('legal-dave-indicator').classList.add('signed'); document.getElementById('legal-dave-time').textContent = state.daveSignTime; }
+      buildGrid();
+    } else {
+      showAgreementScreen();
+    }
+  }, 600);
 }
 
 function resetAccounts() {
@@ -1779,9 +1794,9 @@ function signAgreement(who) {
   }
 
   // Enable enter button once YOU have signed
-  const accounts = loadAccounts();
-  const currentAcct = accounts[state.currentEmail];
-  if (currentAcct && currentAcct.agreementSigned) {
+  const updatedAccounts = loadAccounts();
+  const currentAcct2 = updatedAccounts[state.currentEmail];
+  if (currentAcct2 && currentAcct2.agreementSigned) {
     document.getElementById('proceed-btn').classList.add('ready');
   }
 }
