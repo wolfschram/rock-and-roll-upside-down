@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RRUD — Rock&Roll UpsideDown</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --border: #222;
+    --text: #e0e0e0;
+    --dim: #666;
+    --accent: #c9a84c;
+    --red: #d44;
+    --green: #4a4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 40px;
+    max-width: 500px;
+    width: 100%;
+    margin: 20px;
+  }
+  .brand {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    color: var(--dim);
+    margin-bottom: 8px;
+  }
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+  label {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--dim);
+    margin: 16px 0 6px;
+  }
+  input, select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid #333;
+    color: var(--text);
+    padding: 12px 16px;
+    font-family: inherit;
+    font-size: 14px;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+  .btn {
+    width: 100%;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    padding: 14px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    margin-top: 24px;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn-github {
+    background: #24292e;
+    color: #fff;
+    border: 1px solid #444;
+  }
+  .btn-sign {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .btn-sign.signed {
+    background: var(--green);
+  }
+  .error { color: var(--red); font-size: 12px; margin-top: 8px; }
+  .sub { font-size: 11px; color: var(--dim); margin-top: 8px; line-height: 1.6; }
+  .steps {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #333;
+  }
+  .dot.active { background: var(--accent); }
+  .dot.done { background: var(--green); }
+  .agreement-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 20px;
+    font-size: 12px;
+    line-height: 1.8;
+    max-height: 280px;
+    overflow-y: auto;
+    margin-top: 16px;
+    color: #999;
+  }
+  .connected {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid #333;
+    padding: 12px 16px;
+    margin-top: 16px;
+    font-size: 14px;
+  }
+  .connected .check { color: var(--green); font-size: 16px; }
+  .done-list { font-size: 13px; line-height: 2.2; color: #999; }
+  .done-list .check { color: var(--green); margin-right: 6px; }
+  .done-list strong { color: var(--text); }
+  .next-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 16px;
+    margin-top: 24px;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--dim);
+  }
+  .next-box strong { color: var(--text); }
+  .hidden { display: none; }
+
+  /* workspace view */
+  .workspace { display: none; }
+  .workspace-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .workspace-header .user-info { font-size: 11px; color: var(--dim); }
+  .workspace .card { max-width: 720px; }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 16px;
+  }
+  .stat-card .stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--dim);
+    margin-bottom: 8px;
+  }
+  .stat-card .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-card .stat-sub { font-size: 11px; color: var(--dim); margin-top: 4px; }
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--dim);
+    margin: 16px 0 8px;
+  }
+  .phase-list { list-style: none; font-size: 13px; line-height: 2; }
+  .phase-list .done-phase { color: var(--green); }
+  .phase-list .current-phase { color: var(--accent); font-weight: 700; }
+  .phase-list .future-phase { color: #444; }
+  .logout-btn {
+    background: none;
+    border: 1px solid #333;
+    color: var(--dim);
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+  @media (max-width: 540px) { .grid-2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- ONBOARDING FLOW                                        -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="onboarding" class="card">
+  <div class="brand">Rock&Roll UpsideDown</div>
+
+  <!-- Step indicators (hidden on login) -->
+  <div id="step-indicators" class="steps hidden">
+    <div class="step-item"><div class="dot" id="dot-1"></div><span id="lbl-1">Credentials</span></div>
+    <div class="step-item"><div class="dot" id="dot-2"></div><span id="lbl-2">GitHub</span></div>
+    <div class="step-item"><div class="dot" id="dot-3"></div><span id="lbl-3">Agreement</span></div>
+  </div>
+
+  <!-- S0: LOGIN -->
+  <div id="s-login">
+    <h2>Sign In</h2>
+    <label>Email</label>
+    <input type="email" id="login-email" placeholder="you@example.com">
+    <label>Password</label>
+    <input type="password" id="login-pass" placeholder="password">
+    <div class="error hidden" id="login-error"></div>
+    <button class="btn" id="login-btn">Sign In</button>
+    <p class="sub" style="margin-top:16px;text-align:center">
+      First time? Use the email from your invite.
+    </p>
+  </div>
+
+  <!-- S1: SET CREDENTIALS -->
+  <div id="s-creds" class="hidden">
+    <h2>Set Your Credentials</h2>
+    <p class="sub">First login — choose your platform username and password.</p>
+    <label>Username</label>
+    <input type="text" id="cred-user" placeholder="dave">
+    <label>New Password</label>
+    <input type="password" id="cred-pass" placeholder="minimum 12 characters">
+    <div class="error hidden" id="cred-error"></div>
+    <button class="btn" id="cred-btn">Continue</button>
+  </div>
+
+  <!-- S2: CONNECT GITHUB -->
+  <div id="s-github" class="hidden">
+    <h2>Connect GitHub</h2>
+    <p class="sub">
+      Link your GitHub account. This provisions your access to the
+      repository, sets up CODEOWNERS, and creates your sandbox branch.
+    </p>
+    <div id="gh-form">
+      <label>GitHub Username</label>
+      <input type="text" id="gh-user" placeholder="your-github-username">
+      <p class="sub">
+        We will send you a collaborator invite and configure CODEOWNERS
+        with your account.
+      </p>
+      <button class="btn btn-github" id="gh-btn">Connect GitHub</button>
+      <p class="sub">
+        This also sets up:<br>
+        — CODEOWNERS (both co-owners required for main)<br>
+        — Branch protection rules<br>
+        — Your sandbox branch: sandbox/dave
+      </p>
+    </div>
+    <div id="gh-done" class="hidden">
+      <div class="connected">
+        <span class="check">&#10003;</span>
+        <span>Connected as <strong id="gh-display"></strong></span>
+      </div>
+      <p class="sub" style="color:var(--green)">
+        GitHub account linked. Repository access will be provisioned
+        after you sign the co-ownership agreement.
+      </p>
+      <button class="btn" id="gh-next-btn">Continue to Agreement</button>
+    </div>
+    <div class="error hidden" id="gh-error"></div>
+  </div>
+
+  <!-- S3: CO-OWNERSHIP AGREEMENT -->
+  <div id="s-agree" class="hidden">
+    <h2>Co-Ownership Agreement</h2>
+    <p class="sub">
+      Read the full agreement. Both co-owners must sign before either
+      gets full platform access.
+    </p>
+    <div class="agreement-box">
+      <strong>ROCK&ROLL UPSIDE DOWN — CO-OWNERSHIP AGREEMENT</strong><br><br>
+      <strong>Version 1.0 — March 2026</strong><br><br>
+      This agreement is between Wolf Schram ("Co-Owner A") and the
+      undersigned ("Co-Owner B"), collectively "the Co-Owners."<br><br>
+      <strong>1. Ownership.</strong> All intellectual property created
+      within the rock-and-roll-upside-down repository is owned 50/50 by
+      both Co-Owners. This includes code, architecture, designs,
+      documentation, and any derivative works.<br><br>
+      <strong>2. Decision Making.</strong> Major decisions — architecture
+      changes, external partnerships, fundraising, spending — require
+      agreement from both Co-Owners.<br><br>
+      <strong>3. Revenue.</strong> All revenue generated by the platform
+      shall be split 50/50 after agreed operating costs.<br><br>
+      <strong>4. Contributions.</strong> All contributions to develop
+      or main become jointly owned automatically. Sandbox work remains
+      personal until merged.<br><br>
+      <strong>5. Protected Branches.</strong> main requires approval from
+      both Co-Owners. Enforced via GitHub CODEOWNERS.<br><br>
+      <strong>6. Dissolution.</strong> Requires mutual agreement or
+      California arbitration.<br><br>
+      <strong>7. Third Parties.</strong> External partnerships, investors,
+      or contractors require both signatures.<br><br>
+      By clicking "I agree as co-owner" below, you digitally sign this
+      agreement. Your signature is timestamped and IP-logged.
+    </div>
+    <button class="btn btn-sign" id="sign-btn">I Agree as Co-Owner</button>
+  </div>
+
+  <!-- S4: COMPLETE -->
+  <div id="s-done" class="hidden">
+    <h2>You're In.</h2>
+    <div class="done-list">
+      <div><span class="check">&#10003;</span> Username: <strong id="done-user"></strong></div>
+      <div><span class="check">&#10003;</span> GitHub: <strong id="done-gh"></strong></div>
+      <div><span class="check">&#10003;</span> Agreement: <strong style="color:var(--green)">Signed</strong></div>
+    </div>
+    <div class="next-box">
+      <strong>What happens next:</strong><br>
+      — Repository access provisioned for <span id="done-gh2"></span><br>
+      — CODEOWNERS updated with your GitHub account<br>
+      — Your sandbox branch created<br>
+      — Branch protection rules applied<br><br>
+      Welcome to Rock&Roll UpsideDown.
+    </div>
+    <button class="btn" id="enter-btn" style="margin-top:24px">Enter Workspace</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- WORKSPACE (after login)                                -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="workspace" class="workspace">
+  <div class="card">
+    <div class="workspace-header">
+      <div>
+        <div class="brand">Rock&Roll UpsideDown</div>
+        <div style="font-size:14px;font-weight:700;margin-top:4px">Workspace</div>
+      </div>
+      <div style="text-align:right">
+        <div class="user-info" id="ws-user"></div>
+        <button class="logout-btn" id="logout-btn">Sign Out</button>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="stat-card">
+        <div class="stat-label">Co-Owners</div>
+        <div class="stat-value" id="ws-owners">0</div>
+        <div class="stat-sub" id="ws-owners-sub">of 2 signed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Phase</div>
+        <div class="stat-value">1</div>
+        <div class="stat-sub">Foundation</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Repo</div>
+        <div class="stat-value" style="font-size:14px">
+          <a href="https://github.com/wolfschram/rock-and-roll-upside-down" target="_blank" style="color:var(--accent);text-decoration:none">GitHub &#8599;</a>
+        </div>
+        <div class="stat-sub">wolfschram/rock-and-roll-upside-down</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Services</div>
+        <div class="stat-value">8</div>
+        <div class="stat-sub">0 deployed</div>
+      </div>
+    </div>
+
+    <div class="section-title">Build Phases</div>
+    <ul class="phase-list">
+      <li class="current-phase">&#9654; Phase 1 — Foundation (shared packages + auth portal)</li>
+      <li class="future-phase">&#9634; Phase 2 — Core Platform (band accounts, tours, shows)</li>
+      <li class="future-phase">&#9634; Phase 3 — Live Production (edge ingest, AI metadata)</li>
+      <li class="future-phase">&#9634; Phase 4 — Distribution (licensing, streaming, e-commerce)</li>
+      <li class="future-phase">&#9634; Phase 5 — Architecture Viz (mind map site)</li>
+    </ul>
+
+    <div class="section-title">Co-Owner Status</div>
+    <div id="ws-signatures" style="font-size:12px;line-height:2;color:var(--dim)"></div>
+
+    <div class="section-title">Quick Links</div>
+    <div style="font-size:12px;line-height:2">
+      <a href="https://github.com/wolfschram/rock-and-roll-upside-down/blob/main/docs/ARCHITECTURE.md" target="_blank" style="color:var(--accent)">ARCHITECTURE.md</a><br>
+      <a href="https://github.com/wolfschram/rock-and-roll-upside-down/blob/main/docs/VISION.md" target="_blank" style="color:var(--accent)">VISION.md</a><br>
+      <a href="https://github.com/wolfschram/rock-and-roll-upside-down/blob/main/LEGAL_AGREEMENT.md" target="_blank" style="color:var(--accent)">Co-Ownership Agreement</a><br>
+      <a href="https://github.com/wolfschram/rock-and-roll-upside-down/blob/main/docs/DAVE_ONBOARDING.md" target="_blank" style="color:var(--accent)">Dave's Onboarding Guide</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State (persisted to localStorage) ─────────────────────────
+
+const STORAGE_KEY = 'rrud_users';
+
+function loadUsers() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+}
+function saveUsers(users) { localStorage.setItem(STORAGE_KEY, JSON.stringify(users)); }
+function getCurrentUser() { return sessionStorage.getItem('rrud_current'); }
+function setCurrentUser(email) { sessionStorage.setItem('rrud_current', email); }
+
+// Seed Wolf's account
+const users = loadUsers();
+if (!users['wolf@archive-35.com']) {
+  users['wolf@archive-35.com'] = {
+    email: 'wolf@archive-35.com',
+    username: 'wolf',
+    password: 'rrud2026wolf!',
+    role: 'co_owner',
+    githubUsername: 'wolfschram',
+    githubConnected: true,
+    agreementSigned: false,
+    signedAt: null,
+    createdAt: new Date().toISOString(),
+  };
+  saveUsers(users);
+}
+
+// ── DOM helpers ───────────────────────────────────────────────
+
+const $ = id => document.getElementById(id);
+const show = id => $(id).classList.remove('hidden');
+const hide = id => $(id).classList.add('hidden');
+const showErr = (id, msg) => { $(id).textContent = msg; show(id); };
+const hideErr = id => hide(id);
+
+// ── Check if already logged in ────────────────────────────────
+
+if (getCurrentUser()) {
+  const u = loadUsers()[getCurrentUser()];
+  if (u && u.githubConnected && u.agreementSigned) {
+    showWorkspace(u);
+  }
+}
+
+// ── Step 0: Login ─────────────────────────────────────────────
+
+$('login-btn').onclick = () => {
+  const email = $('login-email').value.trim().toLowerCase();
+  const pass = $('login-pass').value;
+  if (!email) { showErr('login-error', 'Email required'); return; }
+  hideErr('login-error');
+
+  const users = loadUsers();
+  const user = users[email];
+
+  if (user && user.password && user.password !== pass) {
+    showErr('login-error', 'Invalid password');
+    return;
+  }
+
+  // New user (invited) or existing
+  if (!user) {
+    users[email] = {
+      email,
+      username: '',
+      password: '',
+      role: 'co_owner',
+      githubUsername: '',
+      githubConnected: false,
+      agreementSigned: false,
+      signedAt: null,
+      createdAt: new Date().toISOString(),
+    };
+    saveUsers(users);
+  }
+
+  setCurrentUser(email);
+  const u = users[email];
+
+  // Route to correct step
+  if (!u.username || !u.password) {
+    hide('s-login'); show('step-indicators'); show('s-creds');
+    updateDots(0);
+  } else if (!u.githubConnected) {
+    hide('s-login'); show('step-indicators'); show('s-github');
+    updateDots(1);
+  } else if (!u.agreementSigned) {
+    hide('s-login'); show('step-indicators'); show('s-agree');
+    updateDots(2);
+  } else {
+    showWorkspace(u);
+  }
+};
+
+$('login-pass').onkeydown = e => { if (e.key === 'Enter') $('login-btn').click(); };
+
+// ── Step 1: Credentials ──────────────────────────────────────
+
+$('cred-btn').onclick = () => {
+  const username = $('cred-user').value.trim();
+  const pass = $('cred-pass').value;
+  if (!username || username.length < 2) { showErr('cred-error', 'Username required (min 2 chars)'); return; }
+  if (!pass || pass.length < 12) { showErr('cred-error', 'Password must be at least 12 characters'); return; }
+  hideErr('cred-error');
+
+  const users = loadUsers();
+  const email = getCurrentUser();
+  users[email].username = username;
+  users[email].password = pass;
+  saveUsers(users);
+
+  hide('s-creds'); show('s-github');
+  updateDots(1);
+};
+
+// ── Step 2: GitHub ────────────────────────────────────────────
+
+$('gh-btn').onclick = () => {
+  const gh = $('gh-user').value.trim();
+  if (!gh) { showErr('gh-error', 'GitHub username required'); return; }
+  hideErr('gh-error');
+
+  const users = loadUsers();
+  const email = getCurrentUser();
+  users[email].githubUsername = gh;
+  users[email].githubConnected = true;
+  saveUsers(users);
+
+  hide('gh-form');
+  $('gh-display').textContent = '@' + gh;
+  show('gh-done');
+};
+
+$('gh-next-btn').onclick = () => {
+  hide('s-github'); show('s-agree');
+  updateDots(2);
+};
+
+// ── Step 3: Agreement ─────────────────────────────────────────
+
+$('sign-btn').onclick = () => {
+  const users = loadUsers();
+  const email = getCurrentUser();
+  users[email].agreementSigned = true;
+  users[email].signedAt = new Date().toISOString();
+  saveUsers(users);
+
+  $('sign-btn').textContent = 'Signed \u2713';
+  $('sign-btn').classList.add('signed');
+
+  setTimeout(() => {
+    hide('s-agree'); hide('step-indicators'); show('s-done');
+    const u = users[email];
+    $('done-user').textContent = u.username;
+    $('done-gh').textContent = '@' + u.githubUsername;
+    $('done-gh2').textContent = '@' + u.githubUsername;
+  }, 400);
+};
+
+// ── Step 4: Enter workspace ───────────────────────────────────
+
+$('enter-btn').onclick = () => {
+  const users = loadUsers();
+  const u = users[getCurrentUser()];
+  showWorkspace(u);
+};
+
+// ── Workspace ─────────────────────────────────────────────────
+
+function showWorkspace(user) {
+  $('onboarding').style.display = 'none';
+  $('workspace').style.display = 'flex';
+  document.body.style.alignItems = 'flex-start';
+  document.body.style.paddingTop = '40px';
+
+  $('ws-user').textContent = user.username + ' (@' + user.githubUsername + ')';
+
+  const users = loadUsers();
+  const allUsers = Object.values(users);
+  const signed = allUsers.filter(u => u.agreementSigned);
+  $('ws-owners').textContent = signed.length;
+
+  let sigHtml = '';
+  for (const u of allUsers) {
+    const status = u.agreementSigned
+      ? '<span style="color:var(--green)">\u2713 Signed ' + new Date(u.signedAt).toLocaleDateString() + '</span>'
+      : '<span style="color:var(--accent)">Pending</span>';
+    const ghLink = u.githubConnected
+      ? '<a href="https://github.com/' + u.githubUsername + '" target="_blank" style="color:var(--accent)">@' + u.githubUsername + '</a>'
+      : '<span style="color:var(--dim)">Not connected</span>';
+    sigHtml += u.username + ' — ' + ghLink + ' — ' + status + '<br>';
+  }
+  $('ws-signatures').innerHTML = sigHtml;
+}
+
+// ── Logout ────────────────────────────────────────────────────
+
+$('logout-btn').onclick = () => {
+  sessionStorage.removeItem('rrud_current');
+  location.reload();
+};
+
+// ── Dot updater ───────────────────────────────────────────────
+
+function updateDots(activeIdx) {
+  for (let i = 1; i <= 3; i++) {
+    const dot = $('dot-' + i);
+    dot.className = 'dot';
+    if (i - 1 < activeIdx) dot.classList.add('done');
+    else if (i - 1 === activeIdx) dot.classList.add('active');
+    $('lbl-' + i).style.color = (i - 1 <= activeIdx) ? 'var(--text)' : '#444';
+  }
+}
+</script>
+</body>
+</html>
