@@ -901,6 +901,9 @@
       </div>
       <button class="submit-btn" onclick="handleLogin()">Enter</button>
       <div class="status-msg" id="login-status"></div>
+      <div style="text-align:center;margin-top:16px;">
+        <button style="background:none;border:none;color:var(--grey-light);font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;cursor:pointer;text-decoration:underline;" onclick="resetAccounts()">Reset accounts</button>
+      </div>
     </div>
 
     <div id="tab-first" style="display:none">
@@ -1600,10 +1603,21 @@ function handleLogin() {
       state.currentUser = acct.username || '';
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('first-login-screen').style.display = 'flex';
-    } else {
+    } else if(!acct.agreementSigned) {
+      // Completed first login but hasn't signed agreement yet
       state.currentUser = acct.username;
       state.githubConnected = acct.githubConnected;
       showAgreementScreen();
+    } else {
+      // Fully set up — go straight to platform
+      state.currentUser = acct.username;
+      state.githubConnected = acct.githubConnected;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('platform-screen').style.display = 'flex';
+      document.getElementById('topbar-username').textContent = acct.username;
+      if(state.wolfSigned) { document.getElementById('legal-wolf-indicator').classList.add('signed'); document.getElementById('legal-wolf-time').textContent = state.wolfSignTime; }
+      if(state.daveSigned) { document.getElementById('legal-dave-indicator').classList.add('signed'); document.getElementById('legal-dave-time').textContent = state.daveSignTime; }
+      buildGrid();
     }
   }, 600);
 }
@@ -1626,6 +1640,13 @@ function mockGithubLogin() {
   });
 
   setTimeout(() => showAgreementScreen(), 600);
+}
+
+function resetAccounts() {
+  if (!confirm('Reset both accounts to default passwords?\n\nWolf: wolf@archive-35.com / rrud-wolf-2026\nDave: dlemmink@reflexdigital.com / rrud-dave-2026')) return;
+  localStorage.removeItem(ACCOUNTS_KEY);
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
 }
 
 function handleOTT() {
